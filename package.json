@@ -28,7 +28,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "lucide-react": "^0.454.0",
-    "next": "15.2.4",
+    "next": "16.0.7",
     "next-themes": "latest",
     "react": "^19",
     "react-dom": "^19",
