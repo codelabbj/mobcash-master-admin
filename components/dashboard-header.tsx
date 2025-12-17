@@ -59,7 +59,7 @@ export function DashboardHeader({ onToggleSidebar, sidebarOpen }: DashboardHeade
 
           <div className="flex items-center gap-3">
               <Image src={logo} alt="logo" className="rounded-lg h-15 w-auto"/>
-            <div>
+            <div className="hidden md:block">
               <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Zefast Admin
               </h1>
