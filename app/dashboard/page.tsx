@@ -24,6 +24,14 @@ export default function DashboardPage() {
 
   const stats = [
     {
+      title: "Solde Net",
+      value: statistics?.volume_transactions.net_volume ? `${formatNumber(statistics.volume_transactions.net_volume)} FCFA` : "-",
+      description: "Solde net des transactions",
+      icon: TrendingUp,
+      iconColor: "text-emerald-600",
+      iconBg: "bg-emerald-600/10",
+    },
+    {
       title: "Total Utilisateurs",
       value: statistics?.dashboard_stats.total_users ?? "-",
       description: "Utilisateurs enregistrés",
@@ -150,14 +158,6 @@ export default function DashboardPage() {
       icon: BarChart3,
       iconColor: "text-violet-600",
       iconBg: "bg-violet-600/10",
-    },
-    {
-      title: "Solde Net",
-      value: statistics?.volume_transactions.net_volume ? `${formatNumber(statistics.volume_transactions.net_volume)} FCFA` : "-",
-      description: "Solde net des transactions",
-      icon: TrendingUp,
-      iconColor: "text-emerald-600",
-      iconBg: "bg-emerald-600/10",
     },
   ]
 
