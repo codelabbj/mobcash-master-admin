@@ -154,7 +154,7 @@ export function useChangeTransactionStatus() {
 
   return useMutation({
     mutationFn: async (data: ChangeStatusInput) => {
-      const res = await api.put(`/mobcash/transactions/${data.reference}/status`, {})
+      const res = await api.post(`/mobcash/change-transaction`, { reference: data.reference })
       return res.data
     },
     onSuccess: () => {
