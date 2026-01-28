@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useCoupons, type Coupon, type CouponFilters } from "@/hooks/useCoupons"
+import { useCoupons, useDeleteCoupon, type Coupon, type CouponFilters } from "@/hooks/useCoupons"
 import { usePlatforms } from "@/hooks/usePlatforms"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Loader2, Plus, Pencil, Search } from "lucide-react"
+import { Loader2, Plus, Pencil, Search, Trash2 } from "lucide-react"
 import { CouponDialog } from "@/components/coupon-dialog"
+import { DeleteCouponDialog } from "@/components/delete-coupon-dialog"
 import { CopyButton } from "@/components/copy-button"
 
 export default function CouponsPage() {
@@ -19,9 +20,12 @@ export default function CouponsPage() {
     page_size: 10,
   })
   const { data: couponsData, isLoading } = useCoupons(filters)
-  const { data: platforms } = usePlatforms()
+  const { data: platforms } = usePlatforms({})
+  const deleteCoupon = useDeleteCoupon()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [couponToDelete, setCouponToDelete] = useState<Coupon | null>(null)
 
   const handleEdit = (coupon: Coupon) => {
     setSelectedCoupon(coupon)
@@ -37,6 +41,22 @@ export default function CouponsPage() {
     setDialogOpen(open)
     if (!open) {
       setSelectedCoupon(null)
+    }
+  }
+
+  const handleDelete = (coupon: Coupon) => {
+    setCouponToDelete(coupon)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = () => {
+    if (couponToDelete) {
+      deleteCoupon.mutate(couponToDelete.id, {
+        onSuccess: () => {
+          setDeleteDialogOpen(false)
+          setCouponToDelete(null)
+        },
+      })
     }
   }
 
@@ -88,7 +108,7 @@ export default function CouponsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Toutes les Plateformes</SelectItem>
-                  {platforms?.results?.map((platform) => (
+                  {platforms?.map((platform) => (
                     <SelectItem key={platform.id} value={platform.id}>
                       {platform.name}
                     </SelectItem>
@@ -153,15 +173,27 @@ export default function CouponsPage() {
                           {new Date(coupon.created_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(coupon)}
-                            className="h-8"
-                          >
-                            <Pencil className="mr-2 h-3 w-3" />
-                            Modifier
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(coupon)}
+                              className="h-8"
+                            >
+                              <Pencil className="mr-2 h-3 w-3" />
+                              Modifier
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(coupon)}
+                              disabled={deleteCoupon.isPending}
+                              className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-3 w-3" />
+                              Supprimer
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -201,6 +233,13 @@ export default function CouponsPage() {
       </Card>
 
       <CouponDialog open={dialogOpen} onOpenChange={handleDialogClose} coupon={selectedCoupon} />
+      <DeleteCouponDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        couponCode={couponToDelete?.code || ""}
+        isPending={deleteCoupon.isPending}
+      />
     </div>
   )
 }

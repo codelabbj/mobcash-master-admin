@@ -28,7 +28,7 @@ interface CouponDialogProps {
 export function CouponDialog({ open, onOpenChange, coupon }: CouponDialogProps) {
   const createCoupon = useCreateCoupon()
   const updateCoupon = useUpdateCoupon()
-  const { data: platforms, isLoading: isLoadingPlatforms } = usePlatforms()
+  const { data: platforms, isLoading: isLoadingPlatforms } = usePlatforms({})
 
   const [formData, setFormData] = useState<CouponInput>({
     bet_app: "",
@@ -105,7 +105,7 @@ export function CouponDialog({ open, onOpenChange, coupon }: CouponDialogProps) 
                   <SelectValue placeholder="Choisir une plateforme..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {platforms?.results?.map((platform) => (
+                  {platforms?.map((platform) => (
                     <SelectItem key={platform.id} value={platform.id}>
                       {platform.name}
                     </SelectItem>

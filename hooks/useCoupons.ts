@@ -90,3 +90,17 @@ export function useUpdateCoupon() {
   })
 }
 
+export function useDeleteCoupon() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/mobcash/coupon/${id}`)
+    },
+    onSuccess: () => {
+      toast.success("Coupon supprimé avec succès!")
+      queryClient.invalidateQueries({ queryKey: ["coupons"] })
+    },
+  })
+}
+
