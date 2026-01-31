@@ -39,7 +39,7 @@ export function FileInput({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    
+
     if (!file) {
       onFileChange?.(null)
       setLocalPreviewUrl(null)
@@ -57,7 +57,7 @@ export function FileInput({
         }
         return file.type === pattern
       })
-      
+
       if (!matches) {
         alert("Type de fichier non accepté")
         if (fileInputRef.current) {
@@ -108,12 +108,11 @@ export function FileInput({
       )}
       <div className="space-y-4">
         {displayPreview ? (
-          <div className="relative w-full h-64 border-2 border-dashed border-border rounded-lg overflow-hidden">
-            <Image
+          <div className="relative w-full h-64 border-2 border-dashed border-border rounded-lg overflow-hidden bg-muted/20">
+            <img
               src={localPreviewUrl}
               alt="Preview"
-              fill
-              className="object-contain"
+              className="w-full h-full object-contain"
             />
             <Button
               type="button"

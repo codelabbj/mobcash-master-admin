@@ -68,4 +68,31 @@ export function useCreateAdvertisement() {
     },
   })
 }
+export function useUpdateAdvertisement() {
+  const queryClient = useQueryClient()
 
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: AdvertisementInput }) => {
+      const res = await api.put<Advertisement>(`/mobcash/ann/${id}`, data)
+      return res.data
+    },
+    onSuccess: () => {
+      toast.success("Publicité mise à jour avec succès!")
+      queryClient.invalidateQueries({ queryKey: ["advertisements"] })
+    },
+  })
+}
+
+export function useDeleteAdvertisement() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/mobcash/ann/${id}`)
+    },
+    onSuccess: () => {
+      toast.success("Publicité supprimée avec succès!")
+      queryClient.invalidateQueries({ queryKey: ["advertisements"] })
+    },
+  })
+}

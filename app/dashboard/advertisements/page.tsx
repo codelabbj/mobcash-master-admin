@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useAdvertisements, type AdvertisementFilters } from "@/hooks/useAdvertisements"
+import { useAdvertisements, type AdvertisementFilters, useDeleteAdvertisement, type Advertisement } from "@/hooks/useAdvertisements"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Plus, Search } from "lucide-react"
+import { Loader2, Plus, Search, Edit, Trash2 } from "lucide-react"
 import { AdvertisementDialog } from "@/components/advertisement-dialog"
 import Image from "next/image"
 
@@ -19,9 +19,33 @@ export default function AdvertisementsPage() {
     page_size: 10,
   })
   const { data: advertisementsData, isLoading } = useAdvertisements(filters)
+  const deleteAdvertisement = useDeleteAdvertisement()
   const [dialogOpen, setDialogOpen] = useState(false)
-  
+  const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null)
+
   const advertisements = advertisementsData?.results || []
+
+  const handleCreate = () => {
+    setSelectedAd(null)
+    setDialogOpen(true)
+  }
+
+  const handleEdit = (ad: Advertisement) => {
+    setSelectedAd(ad)
+    setDialogOpen(true)
+  }
+
+  const handleDelete = async (id: number) => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette publicité ?")) {
+      deleteAdvertisement.mutate(id)
+    }
+  }
+
+  const getImageUrl = (url: string) => {
+    if (!url) return ""
+    if (url.startsWith("http")) return url
+    return `https://api.zefast.net${url.startsWith("/") ? "" : "/"}${url}`
+  }
 
   return (
     <div className="space-y-6">
@@ -32,7 +56,7 @@ export default function AdvertisementsPage() {
           </h2>
           <p className="text-muted-foreground">Gérez les publicités de la plateforme</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
+        <Button onClick={handleCreate}>
           <Plus className="mr-2 h-4 w-4" />
           Créer une Publicité
         </Button>
@@ -97,6 +121,7 @@ export default function AdvertisementsPage() {
                       <TableHead className="font-semibold text-muted-foreground">Image</TableHead>
                       <TableHead className="font-semibold text-muted-foreground">Statut</TableHead>
                       <TableHead className="font-semibold text-muted-foreground">Créé le</TableHead>
+                      <TableHead className="text-right font-semibold text-muted-foreground">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -106,7 +131,7 @@ export default function AdvertisementsPage() {
                         <TableCell>
                           <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-border">
                             <Image
-                              src={ad.image}
+                              src={getImageUrl(ad.image)}
                               alt={`Publicité ${ad.id}`}
                               fill
                               className="object-cover"
@@ -123,6 +148,31 @@ export default function AdvertisementsPage() {
                           {ad.created_at
                             ? new Date(ad.created_at).toLocaleDateString()
                             : "N/A"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(ad)}
+                              className="text-primary hover:text-primary/90 h-8 w-8 p-0"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(ad.id)}
+                              className="text-destructive hover:text-destructive/90 h-8 w-8 p-0"
+                              disabled={deleteAdvertisement.isPending}
+                            >
+                              {deleteAdvertisement.isPending && deleteAdvertisement.variables === ad.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -161,7 +211,14 @@ export default function AdvertisementsPage() {
         </CardContent>
       </Card>
 
-      <AdvertisementDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      <AdvertisementDialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open)
+          if (!open) setSelectedAd(null)
+        }}
+        advertisement={selectedAd}
+      />
     </div>
   )
 }

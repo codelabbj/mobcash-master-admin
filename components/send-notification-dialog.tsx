@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useEffect} from "react"
+import React, { useEffect } from "react"
 
 import { useState } from "react"
 import { useSendNotification } from "@/hooks/useNotifications"
@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/command"
 import { Loader2, Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
-import {useUsers} from "@/hooks/use-profile"
+import { useUsers } from "@/hooks/use-profile"
 
 interface SendNotificationDialogProps {
     open: boolean
@@ -69,7 +69,7 @@ function BotUserCombobox({
 }: BotUserComboboxProps) {
     const [open, setOpen] = useState(false)
 
-    const selectedUser = users?.find((user) => user.id === selected)
+    const selectedUser = users?.find((user) => user.telegram_user_id === selected)
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -216,8 +216,11 @@ export function SendNotificationDialog({ open, onOpenChange }: SendNotificationD
     const [debouncedBotUsersSearchTerm, setDebouncedBotUsersSearchTerm] = useState("")
     const [notificationType, setNotificationType] = useState<NotificationType>("all")
     const sendNotification = useSendNotification()
-    const { data: botUsers, isLoading: isLoadingBotUsers } = useBotUsers({search: debouncedBotUsersSearchTerm})
-    const {data:users , isLoading: isLoadingUser} = useUsers(debouncedUsersSearchTerm)
+    const { data: botUsersData, isLoading: isLoadingBotUsers } = useBotUsers({ search: debouncedBotUsersSearchTerm })
+    const { data: usersData, isLoading: isLoadingUser } = useUsers(debouncedUsersSearchTerm)
+
+    const botUsers = botUsersData || []
+    const users = usersData?.results || []
 
     // Debounce bot users search (300ms)
     useEffect(() => {
@@ -240,7 +243,7 @@ export function SendNotificationDialog({ open, onOpenChange }: SendNotificationD
     const [formData, setFormData] = useState<{
         title: string,
         content: string,
-        user_id: string|number|null,
+        user_id: string | number | null,
     }>({
         title: "",
         content: "",

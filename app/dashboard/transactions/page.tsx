@@ -21,7 +21,7 @@ import { CopyButton } from "@/components/copy-button"
 export default function TransactionsPage() {
   const [filters, setFilters] = useState<TransactionFilters>({
     page: 1,
-    page_size: 10,
+    page_size: 100,
   })
 
   const { data: transactionsData, isLoading, isError, error } = useTransactions(filters)

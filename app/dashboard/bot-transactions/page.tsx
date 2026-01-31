@@ -18,7 +18,7 @@ import { CopyButton } from "@/components/copy-button"
 export default function BotTransactionsPage() {
   const [filters, setFilters] = useState<BotTransactionFilters>({
     page: 1,
-    page_size: 10,
+    page_size: 100,
   })
 
   const { data: transactionsData, isLoading } = useBotTransactions(filters)
