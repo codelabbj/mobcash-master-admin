@@ -10,7 +10,14 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Plus, Search, RefreshCw, AlertCircle } from "lucide-react"
+import { Loader2, Plus, Search, RefreshCw, AlertCircle, MoreVertical } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import { CreateTransactionDialog } from "@/components/create-transaction-dialog"
 import { ChangeStatusDialog } from "@/components/change-status-dialog"
 import { ShowStatusDialog } from "@/components/show-status-dialog"
@@ -358,43 +365,41 @@ export default function TransactionsPage() {
                           })}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleShowStatus(transaction)}
-                              className="font-medium text-blue-600 hover:text-blue-700"
-                            >
-                              <RefreshCw className="h-4 w-4 mr-1" />
-                              Afficher Statut
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleChangeStatus(transaction)} className="font-medium">
-                              <RefreshCw className="h-4 w-4 mr-1" />
-                              Changer Statut
-                            </Button>
-                            {transaction.status === "pending" || transaction.status === "error" ? (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleProcessTransaction(transaction)}
-                                className="font-medium text-green-600 hover:text-green-700"
-                              >
-                                <RefreshCw className="h-4 w-4 mr-1" />
-                                Traiter
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Ouvrir le menu</span>
+                                <MoreVertical className="h-4 w-4" />
                               </Button>
-                            ) : (
-                              <span className="text-muted-foreground px-4">--------</span>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleUpdateStatus(transaction)}
-                              className="font-medium text-purple-600 hover:text-purple-700"
-                            >
-                              <RefreshCw className="h-4 w-4 mr-1" />
-                              Changement manuel du statut
-                            </Button>
-                          </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-[200px]">
+                              <DropdownMenuItem onClick={() => handleShowStatus(transaction)} className="text-blue-600">
+                                <RefreshCw className="mr-2 h-4 w-4" />
+                                Afficher Statut
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleChangeStatus(transaction)}>
+                                <RefreshCw className="mr-2 h-4 w-4" />
+                                Changer Statut
+                              </DropdownMenuItem>
+                              {transaction.status === "pending" || transaction.status === "error" ? (
+                                <DropdownMenuItem
+                                  onClick={() => handleProcessTransaction(transaction)}
+                                  className="text-green-600"
+                                >
+                                  <RefreshCw className="mr-2 h-4 w-4" />
+                                  Traiter
+                                </DropdownMenuItem>
+                              ) : null}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => handleUpdateStatus(transaction)}
+                                className="text-purple-600"
+                              >
+                                <RefreshCw className="mr-2 h-4 w-4" />
+                                Changement manuel
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}
