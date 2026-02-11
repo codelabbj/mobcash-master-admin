@@ -15,9 +15,9 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Paramètres</h2>
-        <p className="text-muted-foreground">Consultez les paramètres de configuration de la plateforme</p>
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Paramètres</h2>
+          <p className="text-muted-foreground">Consultez les paramètres de configuration de la plateforme</p>
         </div>
         {settings && (
           <Button onClick={() => setDialogOpen(true)}>
@@ -84,6 +84,18 @@ export default function SettingsPage() {
                   {settings.deposit_reward ? "Activé" : "Désactivé"}
                 </Badge>
               </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Dépôt Requis pour voir les coupons</span>
+                <Badge variant={settings.requires_deposit_to_view_coupon ? "default" : "secondary"}>
+                  {settings.requires_deposit_to_view_coupon ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+              {settings.requires_deposit_to_view_coupon && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Dépôt Minimum pour voir</span>
+                  <Badge variant="outline">{settings.minimun_deposit_before_view_coupon} FCFA</Badge>
+                </div>
+              )}
             </CardContent>
           </Card>
 

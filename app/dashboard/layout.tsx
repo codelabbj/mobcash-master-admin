@@ -12,13 +12,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter()
   const [isChecking, setIsChecking] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  
+
   useEffect(() => {
     // Check if we're in the browser
     if (typeof window === 'undefined') {
       return
     }
-    
+
     // Client-side authentication check
     const checkAuth = () => {
       try {
@@ -34,21 +34,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         router.push("/login")
       }
     }
-    
+
     // Small delay to ensure localStorage is ready
     const timer = setTimeout(checkAuth, 100)
-    
+
     // Fallback timeout - if still checking after 2 seconds, proceed anyway
     const fallbackTimer = setTimeout(() => {
       setIsChecking(false)
     }, 2000)
-    
+
     return () => {
       clearTimeout(timer)
       clearTimeout(fallbackTimer)
     }
   }, [router])
-  
+
   // Show loading while checking authentication
   if (isChecking) {
     return (
@@ -60,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
     )
   }
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col">
       <DashboardHeader

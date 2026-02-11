@@ -26,7 +26,7 @@ export default function RootLayout({
       <head>
         <style dangerouslySetInnerHTML={{
           __html: `
-          :root {
+          html:root {
             --primary: ${CONFIG.PRIMARY_COLOR};
             --accent: ${CONFIG.ACCENT_COLOR};
             --ring: ${CONFIG.PRIMARY_COLOR};

@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Loader2 } from "lucide-react"
-import {useState} from "react";
-import TablePagination from "@/components/table-pagination";
+import { useState } from "react"
+import TablePagination from "@/components/table-pagination"
+import { CreateBonusModal } from "@/components/bonuses/create-bonus-modal"
 
 export default function BonusesPage() {
     const { data: bonusesData, isLoading } = useBonuses()
@@ -15,9 +16,13 @@ export default function BonusesPage() {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Bonus</h2>
-                <p className="text-muted-foreground">Consultez les bonus et récompenses des utilisateurs</p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Bonus</h1>
+                </div>
+                <div className="flex gap-2">
+                    <CreateBonusModal />
+                </div>
             </div>
 
             <Card className="border border-border/50 shadow-sm">
@@ -56,7 +61,7 @@ export default function BonusesPage() {
                                             <TableCell className="text-foreground">{bonus.reason_bonus}</TableCell>
                                             <TableCell className="font-mono text-xs text-muted-foreground">
                                                 <div className="flex items-center gap-2">
-                                                    {bonus.user.first_name && bonus.user.first_name ?`${bonus.user.first_name} ${bonus.user.last_name}`:'N/A'}
+                                                    {bonus.user.first_name && bonus.user.first_name ? `${bonus.user.first_name} ${bonus.user.last_name}` : 'N/A'}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-muted-foreground text-sm">{new Date(bonus.created_at).toLocaleDateString()}</TableCell>

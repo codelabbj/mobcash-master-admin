@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Plus, Search, RefreshCw, AlertCircle, MoreVertical } from "lucide-react"
+import { Loader2, Plus, Search, RefreshCw, AlertCircle, MoreVertical, CheckCircle2, Gift } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,8 @@ import { ProcessTransactionDialog } from "@/components/process-transaction-dialo
 import { UpdateTransactionStatusDialog } from "@/components/update-transaction-status-dialog"
 import { TransactionDetailsDialog } from "@/components/transaction-details-dialog"
 import { CopyButton } from "@/components/copy-button"
+import { FinalizeTransactionDialog } from "@/components/transactions/finalize-transaction-dialog"
+import { RewardUserDialog } from "@/components/bonuses/reward-user-modal"
 
 export default function TransactionsPage() {
   const [filters, setFilters] = useState<TransactionFilters>({
@@ -42,6 +44,9 @@ export default function TransactionsPage() {
   const [processDialogOpen, setProcessDialogOpen] = useState(false)
   const [updateStatusDialogOpen, setUpdateStatusDialogOpen] = useState(false)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
+  const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false)
+  const [rewardDialogOpen, setRewardDialogOpen] = useState(false)
+
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
 
   const handleChangeStatus = (transaction: Transaction) => {
@@ -67,6 +72,16 @@ export default function TransactionsPage() {
   const handleShowDetails = (transaction: Transaction) => {
     setSelectedTransaction(transaction)
     setDetailsDialogOpen(true)
+  }
+
+  const handleFinalizeTransaction = (transaction: Transaction) => {
+    setSelectedTransaction(transaction)
+    setFinalizeDialogOpen(true)
+  }
+
+  const handleRewardUser = (transaction: Transaction) => {
+    setSelectedTransaction(transaction)
+    setRewardDialogOpen(true)
   }
 
   const getStatusLabel = (status: string) => {
@@ -402,6 +417,17 @@ export default function TransactionsPage() {
                                 </DropdownMenuItem>
                               ) : null}
                               <DropdownMenuSeparator />
+                              {transaction.status !== "accept" && (transaction.type_trans === "deposit" || transaction.type_trans === "withdrawal") && (
+                                <DropdownMenuItem onClick={() => handleFinalizeTransaction(transaction)} className="text-green-600 font-medium">
+                                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                                  {transaction.type_trans === "deposit" ? "Finaliser Dépôt" : "Finaliser Retrait"}
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem onClick={() => handleRewardUser(transaction)} className="text-amber-600 font-medium">
+                                <Gift className="mr-2 h-4 w-4" />
+                                Récompenser
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() => handleUpdateStatus(transaction)}
                                 className="text-purple-600"
@@ -472,6 +498,16 @@ export default function TransactionsPage() {
       <TransactionDetailsDialog
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
+        transaction={selectedTransaction}
+      />
+      <FinalizeTransactionDialog
+        open={finalizeDialogOpen}
+        onOpenChange={setFinalizeDialogOpen}
+        transaction={selectedTransaction}
+      />
+      <RewardUserDialog
+        open={rewardDialogOpen}
+        onOpenChange={setRewardDialogOpen}
         transaction={selectedTransaction}
       />
     </div>

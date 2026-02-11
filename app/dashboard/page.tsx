@@ -50,14 +50,6 @@ export default function DashboardPage() {
       iconBg: "bg-green-600/10",
     },
     {
-      title: "Utilisateurs Inactifs",
-      value: statistics?.dashboard_stats.inactive_users ?? "-",
-      description: "Utilisateurs inactifs",
-      icon: UserX,
-      iconColor: "text-red-600",
-      iconBg: "bg-red-600/10",
-    },
-    {
       title: "Total Transactions",
       value: statistics?.dashboard_stats.total_transactions ?? "-",
       description: "Toutes les transactions",
@@ -82,54 +74,6 @@ export default function DashboardPage() {
       iconBg: "bg-purple-600/10",
     },
     {
-      title: "Transactions Bot",
-      value: statistics?.dashboard_stats.bot_stats.total_transactions ?? "-",
-      description: "Transactions du bot",
-      icon: ArrowLeftRight,
-      iconColor: "text-purple-600",
-      iconBg: "bg-purple-600/10",
-    },
-    {
-      title: "Coupons Actifs",
-      value: statistics?.dashboard_stats.coupons.active ?? "-",
-      description: `${statistics?.dashboard_stats.coupons.total ? "sur " + statistics.dashboard_stats.coupons.total + " total" : ""}`,
-      icon: Gift,
-      iconColor: "text-pink-600",
-      iconBg: "bg-pink-600/10",
-    },
-    {
-      title: "Dépôts Bot",
-      value: statistics?.dashboard_stats.bot_stats.total_deposits ?? "-",
-      description: "Dépôts via bot",
-      icon: CreditCard,
-      iconColor: "text-purple-600",
-      iconBg: "bg-purple-600/10",
-    },
-    {
-      title: "Retraits Bot",
-      value: statistics?.dashboard_stats.bot_stats.total_withdrawals ?? "-",
-      description: "Retraits via bot",
-      icon: Receipt,
-      iconColor: "text-purple-600",
-      iconBg: "bg-purple-600/10",
-    },
-    {
-      title: "Récompenses",
-      value: statistics?.dashboard_stats.rewards.total ? `${formatNumber(statistics.dashboard_stats.rewards.total)} FCFA` : "-",
-      description: "Total des récompenses",
-      icon: Award,
-      iconColor: "text-yellow-600",
-      iconBg: "bg-yellow-600/10",
-    },
-    {
-      title: "Décaissements",
-      value: statistics?.dashboard_stats.disbursements.count ?? "-",
-      description: `${statistics?.dashboard_stats.disbursements.amount ? formatNumber(statistics.dashboard_stats.disbursements.amount) + " FCFA" : ""}`,
-      icon: DollarSign,
-      iconColor: "text-indigo-600",
-      iconBg: "bg-indigo-600/10",
-    },
-    {
       title: "Publicités Actives",
       value: statistics?.dashboard_stats.advertisements.active ?? "-",
       description: `${statistics?.dashboard_stats.advertisements.total ? "sur " + statistics.dashboard_stats.advertisements.total + " total" : ""}`,
@@ -138,28 +82,12 @@ export default function DashboardPage() {
       iconBg: "bg-cyan-600/10",
     },
     {
-      title: "Utilisateurs Actifs (Growth)",
-      value: statistics?.user_growth.active_users_count ?? "-",
-      description: "Utilisateurs actifs récents",
-      icon: UserCheck,
-      iconColor: "text-green-600",
-      iconBg: "bg-green-600/10",
-    },
-    {
       title: "Parrainages",
       value: statistics?.referral_system.parrainages_count ?? "-",
       description: `${statistics?.referral_system.total_referral_bonus ? formatNumber(statistics.referral_system.total_referral_bonus) + " FCFA bonus" : ""}`,
       icon: Share2,
       iconColor: "text-teal-600",
       iconBg: "bg-teal-600/10",
-    },
-    {
-      title: "Taux d'Activation",
-      value: statistics?.referral_system.activation_rate ? `${(statistics.referral_system.activation_rate * 100).toFixed(1)}%` : "-",
-      description: "Taux d'activation des parrainages",
-      icon: BarChart3,
-      iconColor: "text-violet-600",
-      iconBg: "bg-violet-600/10",
     },
   ]
 
@@ -174,7 +102,7 @@ export default function DashboardPage() {
 
       {isLoading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 20 }).map((_, i) => (
+          {Array.from({ length: 8 }).map((_, i) => (
             <Card key={i} className="border border-border/50 bg-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                 <Skeleton className="h-4 w-32" />

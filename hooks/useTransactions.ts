@@ -217,3 +217,22 @@ export function useUpdateTransactionStatus() {
     },
   })
 }
+
+export interface FinalizeDepositPayload {
+  reference: string
+}
+
+export function useFinalizeTransaction() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: FinalizeDepositPayload) => {
+      const res = await api.post<Transaction>("/mobcash/finalize-transaction", data)
+      return res.data
+    },
+    onSuccess: () => {
+      toast.success("Transaction finalisée avec succès!")
+      queryClient.invalidateQueries({ queryKey: ["transactions"] })
+    },
+  })
+}

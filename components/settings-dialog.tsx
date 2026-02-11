@@ -25,7 +25,7 @@ interface SettingsDialogProps {
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { data: settings, isLoading } = useSettings()
   const updateSettings = useUpdateSettings()
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({})
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
   const [formData, setFormData] = useState<SettingsInput>({
     minimum_deposit: "",
     minimum_withdrawal: "",
@@ -48,6 +48,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     bf_orange_marchand_phone: null,
     bf_moov_marchand_phone: null,
     connect_pro_base_url: null,
+    requires_deposit_to_view_coupon: false,
+    minimun_deposit_before_view_coupon: "",
   })
 
   useEffect(() => {
@@ -74,6 +76,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         bf_orange_marchand_phone: settings.bf_orange_marchand_phone || null,
         bf_moov_marchand_phone: settings.bf_moov_marchand_phone || null,
         connect_pro_base_url: settings.connect_pro_base_url || null,
+        requires_deposit_to_view_coupon: settings.requires_deposit_to_view_coupon,
+        minimun_deposit_before_view_coupon: settings.minimun_deposit_before_view_coupon || "",
       })
     }
   }, [settings])
@@ -82,7 +86,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     e.preventDefault()
 
     // Client-side validation
-    const errors: {[key: string]: string} = {}
+    const errors: { [key: string]: string } = {}
 
     // Required field validation
     if (!formData.minimum_deposit) {
@@ -108,7 +112,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     })
 
     // Phone number validation (basic)
-    const phoneFields = ['whatsapp_phone', 'moov_marchand_phone','orange_marchand_phone', 'bf_orange_marchand_phone', 'bf_moov_marchand_phone']
+    const phoneFields = ['whatsapp_phone', 'moov_marchand_phone', 'orange_marchand_phone', 'bf_orange_marchand_phone', 'bf_moov_marchand_phone']
     phoneFields.forEach(phoneField => {
       const value = formData[phoneField as keyof SettingsInput] as string
       if (value && !value.match(/^\+?[0-9\s\-\(\)]+$/)) {
@@ -138,6 +142,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       orange_marchand_phone: formData.orange_marchand_phone || null,
       bf_orange_marchand_phone: formData.bf_orange_marchand_phone || null,
       bf_moov_marchand_phone: formData.bf_moov_marchand_phone || null,
+      requires_deposit_to_view_coupon: formData.requires_deposit_to_view_coupon,
+      minimun_deposit_before_view_coupon: formData.minimun_deposit_before_view_coupon || "",
     }
     updateSettings.mutate(submitData, {
       onSuccess: () => {
@@ -469,6 +475,29 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 disabled={updateSettings.isPending}
               />
             </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <Label htmlFor="requires_deposit_to_view_coupon">Dépôt Requis pour voir les coupons</Label>
+              <Switch
+                id="requires_deposit_to_view_coupon"
+                checked={formData.requires_deposit_to_view_coupon}
+                onCheckedChange={(checked) => setFormData({ ...formData, requires_deposit_to_view_coupon: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            {formData.requires_deposit_to_view_coupon && (
+              <div className="space-y-2">
+                <Label htmlFor="minimun_deposit_before_view_coupon">Dépôt Minimum pour voir (FCFA)</Label>
+                <Input
+                  id="minimun_deposit_before_view_coupon"
+                  type="number"
+                  value={formData.minimun_deposit_before_view_coupon || ""}
+                  onChange={(e) => setFormData({ ...formData, minimun_deposit_before_view_coupon: e.target.value })}
+                  disabled={updateSettings.isPending}
+                />
+              </div>
+            )}
           </div>
 
           <DialogFooter>
