@@ -205,13 +205,11 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
 
         const dataToSubmit = { ...formData }
 
-        if (dataToSubmit.payment_by_ussd_code) {
-            if (!dataToSubmit.ussd_code.includes("{amount}")) {
-                toast.error("Le code USSD doit contenir '{amount}' pour indiquer l'emplacement de la saisie.")
-                return
-            }
-        } else {
-            dataToSubmit.ussd_code = "" // Or preserve what was there if desired, but request implies blank or excluded
+        if (!dataToSubmit.payment_by_ussd_code) {
+            // Remove those keys from payload if USSD payment is disabled
+            delete (dataToSubmit as any).ussd_code
+            delete (dataToSubmit as any).reduce_fee
+            delete (dataToSubmit as any).fee_payin
         }
 
         if (network) {
@@ -381,18 +379,6 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                             </Select>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="fee_payin">Frais Payin (Nombre) *</Label>
-                            <Input
-                                id="fee_payin"
-                                type="number"
-                                step="any"
-                                value={formData.fee_payin}
-                                onChange={(e) => setFormData({ ...formData, fee_payin: parseFloat(e.target.value) || 0 })}
-                                required
-                                disabled={isPending}
-                            />
-                        </div>
                     </div>
 
                     <div className="space-y-2">
@@ -489,16 +475,6 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                         )}
 
                         <div className="flex items-center justify-between space-x-2">
-                            <Label htmlFor="reduce_fee">Réduire les frais</Label>
-                            <Switch
-                                id="reduce_fee"
-                                checked={formData.reduce_fee}
-                                onCheckedChange={(checked) => setFormData({ ...formData, reduce_fee: checked })}
-                                disabled={isPending}
-                            />
-                        </div>
-
-                        <div className="flex items-center justify-between space-x-2">
                             <Label htmlFor="payment_by_ussd_code">Paiement par Code USSD</Label>
                             <Switch
                                 id="payment_by_ussd_code"
@@ -510,16 +486,45 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                     </div>
 
                     {formData.payment_by_ussd_code && (
-                        <div className="space-y-2">
-                            <Label htmlFor="ussd_code">Code USSD (doit contenir {'{amount}'}) *</Label>
-                            <Input
-                                id="ussd_code"
-                                value={formData.ussd_code}
-                                onChange={(e) => setFormData({ ...formData, ussd_code: e.target.value })}
-                                placeholder="*XXX*X*{amount}#"
-                                required
-                                disabled={isPending}
-                            />
+                        <div className="p-4 border border-dashed rounded-lg space-y-4 bg-muted/30">
+                            <p className="text-sm font-medium text-muted-foreground">Paramètres de paiement USSD</p>
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="fee_payin">Frais Payin (Nombre) *</Label>
+                                    <Input
+                                        id="fee_payin"
+                                        type="number"
+                                        step="any"
+                                        value={formData.fee_payin}
+                                        onChange={(e) => setFormData({ ...formData, fee_payin: parseFloat(e.target.value) || 0 })}
+                                        required
+                                        disabled={isPending}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="ussd_code">Code USSD *</Label>
+                                    <Input
+                                        id="ussd_code"
+                                        value={formData.ussd_code}
+                                        onChange={(e) => setFormData({ ...formData, ussd_code: e.target.value })}
+                                        placeholder="*XXX*X*{amount}#"
+                                        required
+                                        disabled={isPending}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between space-x-2">
+                                <Label htmlFor="reduce_fee">Réduire les frais</Label>
+                                <Switch
+                                    id="reduce_fee"
+                                    checked={formData.reduce_fee}
+                                    onCheckedChange={(checked) => setFormData({ ...formData, reduce_fee: checked })}
+                                    disabled={isPending}
+                                />
+                            </div>
                         </div>
                     )}
 
