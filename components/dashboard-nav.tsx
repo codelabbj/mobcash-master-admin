@@ -3,44 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import {
-  Users,
-  Network,
-  Phone,
-  Award as IdCard,
-  Bell,
-  Gift,
-  ArrowLeftRight,
-  Settings,
-  LayoutDashboard,
-  Wallet,
-  Layers,
-  Bot,
-  Ticket,
-  Megaphone,
-  CreditCard,
-} from "lucide-react"
-
+import { navItems } from "@/lib/navigation"
 import { CONFIG } from "@/lib/config"
-
-const navItems = [
-  { href: "/dashboard", label: "Tableau de Bord", icon: LayoutDashboard, feature: null },
-  { href: "/dashboard/users", label: "Utilisateurs", icon: Users, feature: "USERS" as const },
-  { href: "/dashboard/bot-users", label: "Utilisateurs Bot", icon: Users, feature: "BOT_USERS" as const },
-  { href: "/dashboard/networks", label: "Réseaux", icon: Network, feature: "NETWORKS" as const },
-  { href: "/dashboard/telephones", label: "Téléphones", icon: Phone, feature: "TELEPHONES" as const },
-  { href: "/dashboard/user-app-ids", label: "IDs Utilisateur", icon: IdCard, feature: "USER_APP_IDS" as const },
-  { href: "/dashboard/notifications", label: "Notifications", icon: Bell, feature: "NOTIFICATIONS" as const },
-  { href: "/dashboard/bonuses", label: "Bonus", icon: Gift, feature: "BONUSES" as const },
-  { href: "/dashboard/coupons", label: "Coupons", icon: Ticket, feature: "COUPONS" as const },
-  { href: "/dashboard/advertisements", label: "Publicités", icon: Megaphone, feature: "ADVERTISEMENTS" as const },
-  { href: "/dashboard/transactions", label: "Transactions", icon: ArrowLeftRight, feature: "TRANSACTIONS" as const },
-  { href: "/dashboard/recharges", label: "Recharges", icon: CreditCard, feature: "RECHARGES" as const },
-  { href: "/dashboard/bot-transactions", label: "Transactions Bot", icon: Bot, feature: "BOT_TRANSACTIONS" as const },
-  { href: "/dashboard/platforms", label: "Plateformes", icon: Layers, feature: "PLATFORMS" as const },
-  { href: "/dashboard/deposits", label: "Caisses", icon: Wallet, feature: "DEPOSITS" as const },
-  { href: "/dashboard/settings", label: "Paramètres", icon: Settings, feature: "SETTINGS" as const },
-]
 
 interface DashboardNavProps {
   onNavigate?: () => void

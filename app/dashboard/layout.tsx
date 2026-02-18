@@ -2,14 +2,17 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { isAuthenticated } from "@/lib/auth"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardNav } from "@/components/dashboard-nav"
 import { Loader2 } from "lucide-react"
+import { navItems } from "@/lib/navigation"
+import { CONFIG } from "@/lib/config"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [isChecking, setIsChecking] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -19,15 +22,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       return
     }
 
-    // Client-side authentication check
-    const checkAuth = () => {
+    // Client-side authentication and access control check
+    const checkAuthAndAccess = () => {
       try {
         const authenticated = isAuthenticated()
         if (!authenticated) {
           router.push("/login")
-        } else {
-          setIsChecking(false)
+          return
         }
+
+        // Feature flag access control
+        const currentItem = navItems.find(item => item.href === pathname)
+        if (currentItem?.feature && !CONFIG.FEATURES[currentItem.feature]) {
+          console.warn(`Access denied to disabled feature: ${currentItem.feature}`)
+          router.push("/dashboard")
+          return
+        }
+
+        setIsChecking(false)
       } catch (error) {
         console.error("Auth check error:", error)
         // On error, redirect to login as fallback
@@ -36,7 +48,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     // Small delay to ensure localStorage is ready
-    const timer = setTimeout(checkAuth, 100)
+    const timer = setTimeout(checkAuthAndAccess, 100)
 
     // Fallback timeout - if still checking after 2 seconds, proceed anyway
     const fallbackTimer = setTimeout(() => {
@@ -47,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       clearTimeout(timer)
       clearTimeout(fallbackTimer)
     }
-  }, [router])
+  }, [router, pathname])
 
   // Show loading while checking authentication
   if (isChecking) {
