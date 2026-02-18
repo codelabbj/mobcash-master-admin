@@ -37,7 +37,7 @@ export function ShowStatusDialog({ open, onOpenChange, transaction }: ShowStatus
       case "timeout":
         return "Expiré"
       case "init_payment":
-        return "En traitement"
+        return "Une etape sur 2"
       case "error":
         return "Erreur"
       case "success":

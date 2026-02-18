@@ -95,7 +95,7 @@ export default function TransactionsPage() {
       case "timeout":
         return "Expiré"
       case "init_payment":
-        return "En traitement"
+        return "Une etape sur 2"
       case "error":
         return "Erreur"
       default:
@@ -219,6 +219,7 @@ export default function TransactionsPage() {
                   <SelectItem value="accept">Accepté</SelectItem>
                   <SelectItem value="reject">Rejeté</SelectItem>
                   <SelectItem value="timeout">Expiré</SelectItem>
+                  <SelectItem value="init_payment">Une etape sur 2</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -53,7 +53,7 @@ export default function BotTransactionsPage() {
       case "pending":
         return "En attente"
       case "init_payment":
-        return "En traitement"
+        return "Une etape sur 2"
       default:
         return status
     }
@@ -173,7 +173,7 @@ export default function BotTransactionsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous les Statuts</SelectItem>
-                  <SelectItem value="init_payment">En attente</SelectItem>
+                  <SelectItem value="init_payment">Une etape sur 2</SelectItem>
                   <SelectItem value="accept">Accepté</SelectItem>
                   <SelectItem value="error">Erreur</SelectItem>
                   <SelectItem value="pending">En cours</SelectItem>
