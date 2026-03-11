@@ -11,7 +11,7 @@ echo "Pushing to all remotes..."
 echo ""
 
 # List of remotes to push to
-REMOTES=("1xstore" "icash" "origin" "slater" "supercash" "master")
+REMOTES=("1xstore", "icash", "origin", "slater", "supercash", "master")
 
 # Push to each remote
 for REMOTE in "${REMOTES[@]}"; do
