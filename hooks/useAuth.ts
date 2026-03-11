@@ -56,3 +56,68 @@ export function useLogout() {
     },
   })
 }
+
+// Update password for logged-in users
+interface UpdatePasswordPayload {
+  old_password: string
+  new_password: string
+  confirm_new_password: string
+}
+
+export function useUpdatePassword() {
+  return useMutation({
+    mutationFn: async (data: UpdatePasswordPayload) => {
+      const res = await api.post("/auth/change_password", data)
+      return res.data
+    },
+    onSuccess: () => {
+      toast.success("Mot de passe mis à jour avec succès!")
+    },
+    onError: (error: any) => {
+      console.error("Password update error:", error)
+    },
+  })
+}
+
+// Forget password - Step 1: Request reset code
+interface RequestPasswordResetPayload {
+  identifier: string
+}
+
+export function useRequestPasswordReset() {
+  return useMutation({
+    mutationFn: async (data: RequestPasswordResetPayload) => {
+      const res = await api.post("/auth/send_otp", data)
+      return res.data
+    },
+    onSuccess: () => {
+      toast.success("Un code de réinitialisation a été envoyé à votre adresse email.")
+    },
+    onError: (error: any) => {
+      console.error("Password reset request error:", error)
+    },
+  })
+}
+
+// Forget password - Step 2: Confirm reset with otp and new password
+interface ConfirmPasswordResetPayload {
+  identifier: string
+  otp: string
+  new_password: string
+  confirm_new_password: string
+}
+
+export function useConfirmPasswordReset() {
+  return useMutation({
+    mutationFn: async (data: ConfirmPasswordResetPayload) => {
+      const res = await api.post("/auth/reset_password", data)
+      return res.data
+    },
+    onSuccess: () => {
+      toast.success("Mot de passe réinitialisé avec succès! Veuillez vous connecter.")
+    },
+    onError: (error: any) => {
+      console.error("Password reset confirm error:", error)
+    },
+  })
+}

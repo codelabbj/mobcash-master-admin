@@ -34,9 +34,25 @@ const NETWORK_CHOICES = [
     { value: "afrimoney", label: "Afrimoney" },
 ]
 
-const API_CHOICES = [
-    { value: "connect", label: "Zefast Connect" },
-]
+const parseApiChoices = () => {
+    const envChoices = process.env.NEXT_PUBLIC_API_CHOICES
+    if (!envChoices) {
+        return [{ value: "connect", label: "Module Connect" }]
+    }
+
+    try {
+        return envChoices.split(",").map((choice) => {
+            const [value, label] = choice.split(":")
+            return { value, label: label || value }
+        })
+    } catch (error) {
+        console.error("Error parsing NEXT_PUBLIC_API_CHOICES:", error)
+        return [{ value: "connect", label: "Module Connect" }]
+    }
+}
+
+const API_CHOICES = parseApiChoices()
+
 
 interface NetworkDialogProps {
     open: boolean
@@ -489,7 +505,6 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                                         step="any"
                                         value={formData.fee_payin}
                                         onChange={(e) => setFormData({ ...formData, fee_payin: parseFloat(e.target.value) || 0 })}
-                                        required
                                         disabled={isPending}
                                     />
                                 </div>
@@ -501,7 +516,6 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                                         value={formData.ussd_code}
                                         onChange={(e) => setFormData({ ...formData, ussd_code: e.target.value })}
                                         placeholder="*XXX*X*{amount}#"
-                                        required
                                         disabled={isPending}
                                     />
                                 </div>

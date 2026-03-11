@@ -6,8 +6,8 @@ let isRefreshing = false
 let failedQueue: any[] = []
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
-  timeout: 30000, // 30 seconds timeout
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+    timeout: 30000, // 30 seconds timeout
 })
 
 // Detect if a message from API is in French
@@ -19,22 +19,22 @@ function detectLang(text: string): "fr" | "en" {
 }
 
 api.interceptors.request.use((config) => {
-  // Don't add token to login/auth endpoints
-  const isAuthEndpoint = config.url?.includes('auth/login') || config.url?.includes('auth/refresh')
+    // Don't add token to login/auth endpoints or password-reset endpoints
+    const isAuthEndpoint = config.url?.includes('auth/login') || config.url?.includes('auth/refresh') || config.url?.includes('auth/password-reset')
 
-  if (!isAuthEndpoint) {
-    const token = localStorage.getItem("access_token")
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-      console.log("🔐 Adding Bearer token to request:", config.url, "(token length:", token.length + ")")
+    if (!isAuthEndpoint) {
+        const token = localStorage.getItem("access_token")
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+            console.log("🔐 Adding Bearer token to request:", config.url, "(token length:", token.length + ")")
+        } else {
+            console.log("⚠️ No access token found for request:", config.url)
+        }
     } else {
-      console.log("⚠️ No access token found for request:", config.url)
+        console.log("🔐 Skipping token for auth endpoint:", config.url)
     }
-  } else {
-    console.log("🔐 Skipping token for auth endpoint:", config.url)
-  }
 
-  return config
+    return config
 })
 
 api.interceptors.response.use(
@@ -208,7 +208,7 @@ api.interceptors.response.use(
 
         const backendMsg =
             error.response?.data?.detail ||
-            error.response?.data?.details||
+            error.response?.data?.details ||
             error.response?.data?.error ||
             error.response?.data?.message ||
             (typeof error.response?.data === "string" ? error.response.data : fallback)
