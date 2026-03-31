@@ -36,6 +36,7 @@ export const navItems: NavItem[] = [
     { href: "/dashboard/telephones", label: "Téléphones", icon: Phone, feature: "TELEPHONES" },
     { href: "/dashboard/user-app-ids", label: "IDs Utilisateur", icon: IdCard, feature: "USER_APP_IDS" },
     { href: "/dashboard/notifications", label: "Notifications", icon: Bell, feature: "NOTIFICATIONS" },
+    { href: "/dashboard/notification_sender", label: "Expéditeur de Notifications", icon: Bell, feature: "NOTIFICATIONS" },
     { href: "/dashboard/bonuses", label: "Bonus", icon: Gift, feature: "BONUSES" },
     { href: "/dashboard/coupons", label: "Coupons", icon: Ticket, feature: "COUPONS" },
     { href: "/dashboard/advertisements", label: "Publicités", icon: Megaphone, feature: "ADVERTISEMENTS" },
