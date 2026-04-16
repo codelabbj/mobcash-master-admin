@@ -30,6 +30,7 @@ export interface Settings {
     connect_pro_base_url: string | null
     requires_deposit_to_view_coupon: boolean
     minimun_deposit_before_view_coupon: string
+    coupon_enable: boolean
 }
 
 export type SettingsInput = Omit<Settings, "id">

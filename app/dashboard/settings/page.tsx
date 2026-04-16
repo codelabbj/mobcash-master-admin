@@ -90,6 +90,12 @@ export default function SettingsPage() {
                   {settings.requires_deposit_to_view_coupon ? "Activé" : "Désactivé"}
                 </Badge>
               </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Activation des Coupons</span>
+                <Badge variant={settings.coupon_enable ? "default" : "secondary"}>
+                  {settings.coupon_enable ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
               {settings.requires_deposit_to_view_coupon && (
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Dépôt Minimum pour voir</span>

@@ -7,8 +7,14 @@ import ErrorBoundary from "@/components/ErrorBoundary"
 import { Providers } from "@/components/providers"
 import { CONFIG } from "@/lib/config"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const geistSans = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+})
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+})
 
 export const metadata: Metadata = {
   title: CONFIG.APP_TITLE,
@@ -57,7 +63,7 @@ export default function RootLayout({
           }
         `}} />
       </head>
-      <body className={`font-sans antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <ErrorBoundary>
           <Providers>{children}</Providers>
         </ErrorBoundary>

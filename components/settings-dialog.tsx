@@ -51,6 +51,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     connect_pro_base_url: null,
     requires_deposit_to_view_coupon: false,
     minimun_deposit_before_view_coupon: "",
+    coupon_enable: false,
   })
 
   useEffect(() => {
@@ -80,6 +81,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         connect_pro_base_url: settings.connect_pro_base_url || null,
         requires_deposit_to_view_coupon: settings.requires_deposit_to_view_coupon,
         minimun_deposit_before_view_coupon: settings.minimun_deposit_before_view_coupon || "",
+        coupon_enable: settings.coupon_enable || false,
       })
     }
   }, [settings])
@@ -503,6 +505,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 id="requires_deposit_to_view_coupon"
                 checked={formData.requires_deposit_to_view_coupon}
                 onCheckedChange={(checked) => setFormData({ ...formData, requires_deposit_to_view_coupon: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <Label htmlFor="coupon_enable">Activation des Coupons</Label>
+              <Switch
+                id="coupon_enable"
+                checked={formData.coupon_enable}
+                onCheckedChange={(checked) => setFormData({ ...formData, coupon_enable: checked })}
                 disabled={updateSettings.isPending}
               />
             </div>
