@@ -9,7 +9,7 @@ Write-Host "Pushing to all remotes..." -ForegroundColor Cyan
 Write-Host ""
 
 # List of remotes to push to
-$REMOTES = @("1xstore", "icash", "origin", "slater", "supercash", "master")
+$REMOTES = @("1xstore", "icash", "origin", "slater", "supercash", "zefast")
 
 # Push to each remote
 foreach ($REMOTE in $REMOTES) {
