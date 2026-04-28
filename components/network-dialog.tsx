@@ -20,6 +20,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, Upload } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 
 const NETWORK_CHOICES = [
     { value: "mtn", label: "MTN" },
@@ -88,6 +89,11 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
         ussd_code: "",
         reduce_fee: false,
         fee_payin: 0,
+        fee_slice_enabled: false,
+        fee_slice_threshold: 50000,
+        fee_slice_low_percent: "2.00",
+        fee_slice_high_percent: "1.00",
+        fee_slice_fixed: 0,
     })
 
     useEffect(() => {
@@ -114,6 +120,11 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                 ussd_code: network.ussd_code ?? "",
                 reduce_fee: network.reduce_fee ?? false,
                 fee_payin: network.fee_payin ?? 0,
+                fee_slice_enabled: network.fee_slice_enabled ?? false,
+                fee_slice_threshold: network.fee_slice_threshold ?? 50000,
+                fee_slice_low_percent: network.fee_slice_low_percent ?? "2.00",
+                fee_slice_high_percent: network.fee_slice_high_percent ?? "1.00",
+                fee_slice_fixed: network.fee_slice_fixed ?? 0,
             })
             setSelectedImage(network.image)
         } else {
@@ -139,6 +150,11 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                 ussd_code: "",
                 reduce_fee: false,
                 fee_payin: 0,
+                fee_slice_enabled: false,
+                fee_slice_threshold: 50000,
+                fee_slice_low_percent: "2.00",
+                fee_slice_high_percent: "1.00",
+                fee_slice_fixed: 0,
             })
             setSelectedImage(null)
         }
@@ -184,6 +200,11 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                     ussd_code: network.ussd_code ?? "",
                     reduce_fee: network.reduce_fee ?? false,
                     fee_payin: network.fee_payin ?? 0,
+                    fee_slice_enabled: network.fee_slice_enabled ?? false,
+                    fee_slice_threshold: network.fee_slice_threshold ?? 50000,
+                    fee_slice_low_percent: network.fee_slice_low_percent ?? "2.00",
+                    fee_slice_high_percent: network.fee_slice_high_percent ?? "1.00",
+                    fee_slice_fixed: network.fee_slice_fixed ?? 0,
                 })
                 setSelectedImage(network.image)
             } else {
@@ -209,6 +230,11 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                     ussd_code: "",
                     reduce_fee: false,
                     fee_payin: 0,
+                    fee_slice_enabled: false,
+                    fee_slice_threshold: 50000,
+                    fee_slice_low_percent: "2.00",
+                    fee_slice_high_percent: "1.00",
+                    fee_slice_fixed: 0,
                 })
                 setSelectedImage(null)
             }
@@ -226,6 +252,14 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
             delete (dataToSubmit as any).ussd_code
             delete (dataToSubmit as any).reduce_fee
             delete (dataToSubmit as any).fee_payin
+        }
+
+        if (!dataToSubmit.fee_slice_enabled) {
+            // Remove those keys from payload if tiered fees are disabled
+            delete (dataToSubmit as any).fee_slice_threshold
+            delete (dataToSubmit as any).fee_slice_low_percent
+            delete (dataToSubmit as any).fee_slice_high_percent
+            delete (dataToSubmit as any).fee_slice_fixed
         }
 
         if (network) {
@@ -482,6 +516,16 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                         )}
 
                         <div className="flex items-center justify-between space-x-2">
+                            <Label htmlFor="fee_slice_enabled" className="text-primary font-semibold">Activer les frais par paliers</Label>
+                            <Switch
+                                id="fee_slice_enabled"
+                                checked={formData.fee_slice_enabled}
+                                onCheckedChange={(checked) => setFormData({ ...formData, fee_slice_enabled: checked })}
+                                disabled={isPending}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between space-x-2">
                             <Label htmlFor="payment_by_ussd_code">Paiement par Code USSD</Label>
                             <Switch
                                 id="payment_by_ussd_code"
@@ -492,20 +536,79 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                         </div>
                     </div>
 
+                    {formData.fee_slice_enabled && (
+                        <div className="p-4 border border-primary/30 border-dashed rounded-lg space-y-4 bg-primary/5">
+                            <p className="text-sm font-semibold text-primary">Configuration des frais par paliers</p>
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="fee_slice_threshold">Seuil (Montant) *</Label>
+                                    <Input
+                                        id="fee_slice_threshold"
+                                        type="number"
+                                        value={formData.fee_slice_threshold}
+                                        onChange={(e) => setFormData({ ...formData, fee_slice_threshold: parseInt(e.target.value) || 0 })}
+                                        disabled={isPending}
+                                    />
+                                    <p className="text-[10px] text-muted-foreground italic">Ex: 50000</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="fee_slice_fixed">Montant Fixe (Tier Haut) *</Label>
+                                    <Input
+                                        id="fee_slice_fixed"
+                                        type="number"
+                                        value={formData.fee_slice_fixed}
+                                        onChange={(e) => setFormData({ ...formData, fee_slice_fixed: parseInt(e.target.value) || 0 })}
+                                        disabled={isPending}
+                                    />
+                                    <p className="text-[10px] text-muted-foreground italic">Ajouté en plus du % au delà du seuil</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="fee_slice_low_percent">% Seuil Bas (≤ Seuil) *</Label>
+                                    <Input
+                                        id="fee_slice_low_percent"
+                                        value={formData.fee_slice_low_percent}
+                                        onChange={(e) => setFormData({ ...formData, fee_slice_low_percent: e.target.value })}
+                                        placeholder="2.00"
+                                        disabled={isPending}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="fee_slice_high_percent">% Seuil Haut ({'>'} Seuil) *</Label>
+                                    <Input
+                                        id="fee_slice_high_percent"
+                                        value={formData.fee_slice_high_percent}
+                                        onChange={(e) => setFormData({ ...formData, fee_slice_high_percent: e.target.value })}
+                                        placeholder="1.00"
+                                        disabled={isPending}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {formData.payment_by_ussd_code && (
                         <div className="p-4 border border-dashed rounded-lg space-y-4 bg-muted/30">
-                            <p className="text-sm font-medium text-muted-foreground">Paramètres de paiement USSD</p>
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-muted-foreground">Paramètres de paiement USSD</p>
+                                {formData.fee_slice_enabled && (
+                                    <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20 text-[10px]">
+                                        Frais standards ignorés (Paliers actifs)
+                                    </Badge>
+                                )}
+                            </div>
 
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
-                                    <Label htmlFor="fee_payin">Frais Payin (Nombre) *</Label>
+                                    <Label htmlFor="fee_payin" className={formData.fee_slice_enabled ? "text-muted-foreground line-through" : ""}>
+                                        Frais Payin (Nombre) *
+                                    </Label>
                                     <Input
                                         id="fee_payin"
                                         type="number"
                                         step="any"
                                         value={formData.fee_payin}
                                         onChange={(e) => setFormData({ ...formData, fee_payin: parseFloat(e.target.value) || 0 })}
-                                        disabled={isPending}
+                                        disabled={isPending || formData.fee_slice_enabled}
                                     />
                                 </div>
 
@@ -522,12 +625,14 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                             </div>
 
                             <div className="flex items-center justify-between space-x-2">
-                                <Label htmlFor="reduce_fee">Réduire les frais</Label>
+                                <Label htmlFor="reduce_fee" className={formData.fee_slice_enabled ? "text-muted-foreground line-through" : ""}>
+                                    Réduire les frais
+                                </Label>
                                 <Switch
                                     id="reduce_fee"
                                     checked={formData.reduce_fee}
                                     onCheckedChange={(checked) => setFormData({ ...formData, reduce_fee: checked })}
-                                    disabled={isPending}
+                                    disabled={isPending || formData.fee_slice_enabled}
                                 />
                             </div>
                         </div>

@@ -29,6 +29,11 @@ export interface Network {
     ussd_code: string
     reduce_fee: boolean
     fee_payin: number
+    fee_slice_enabled: boolean
+    fee_slice_threshold: number
+    fee_slice_low_percent: string
+    fee_slice_high_percent: string
+    fee_slice_fixed: number
 }
 
 export type NetworkInput = Omit<Network, "id" | "created_at">
@@ -75,7 +80,7 @@ export function useUpdateNetwork() {
                 const uploadedFile = (await api.post<AppFile>('/mobcash/upload', uploadData)).data
                 data.image = uploadedFile.file
             }
-            const res = await api.put<Network>(`/mobcash/network/${id}`, data)
+            const res = await api.patch<Network>(`/mobcash/network/${id}`, data)
             return res.data
         },
         onSuccess: () => {
