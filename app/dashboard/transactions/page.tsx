@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useTransactions, useCheckTransactionStatus, type Transaction, type TransactionFilters } from "@/hooks/useTransactions"
 import { useNetworks, type Network } from "@/hooks/useNetworks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -33,6 +33,30 @@ export default function TransactionsPage() {
     page: 1,
     page_size: 100,
   })
+
+  const [scale, setScale] = useState(1)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current && containerRef.current.parentElement) {
+        // Get the available width from the parent container
+        const availableWidth = containerRef.current.parentElement.clientWidth
+        // We want to fit 1500px into the available width (to fit all 11 columns comfortably)
+        if (availableWidth < 1500) {
+          // Multiply by 0.98 to add a tiny margin of safety so it doesn't touch the exact edges
+          setScale((availableWidth / 1500) * 0.98)
+        } else {
+          setScale(1)
+        }
+      }
+    }
+    
+    // Slight delay on first visit to ensure layout has rendered padding/margins
+    setTimeout(handleResize, 10)
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   const { data: transactionsData, isLoading, isError, error } = useTransactions(filters)
   const { data: networks } = useNetworks()
@@ -154,7 +178,7 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div ref={containerRef} className="space-y-6 min-w-[1500px] transform-origin-top-left" style={{ zoom: scale }}>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Transactions</h2>
@@ -172,7 +196,7 @@ export default function TransactionsPage() {
           <CardDescription className="text-sm">Rechercher et filtrer les transactions</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="search">Rechercher Référence</Label>
               <div className="relative">
@@ -317,8 +341,8 @@ export default function TransactionsPage() {
             </div>
           ) : transactionsData && transactionsData.results.length > 0 ? (
             <>
-              <div className="overflow-x-auto">
-                <Table>
+              <div className="rounded-md border border-border/50">
+                <Table className="min-w-[1500px]">
                   <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50 border-b border-border/50">
                       <TableHead className="font-semibold text-muted-foreground h-12">Référence</TableHead>
