@@ -52,8 +52,9 @@ export function useBlockUnblockUser() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (userId: number) => {
-      const res = await api.post(`/auth/users/block/block`, { user_id: userId })
+    mutationFn: async ({ userId, isBlocked }: { userId: string; isBlocked: boolean }) => {
+      const endpoint = isBlocked ? `/auth/users/block/deblock` : `/auth/users/block/block`
+      const res = await api.post(endpoint, { user_id: userId })
       return res.data
     },
     onSuccess: (data) => {

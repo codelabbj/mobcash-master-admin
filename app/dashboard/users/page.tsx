@@ -29,7 +29,7 @@ export default function UsersPage() {
 
   const handleToggleBlock = (user: User) => {
     setLoadingUserId(user.id)
-    blockUnblockMutation.mutate(Number(user.id), {
+    blockUnblockMutation.mutate({ userId: user.id, isBlocked: user.is_block }, {
       onSuccess: () => {
         setLoadingUserId(null)
       },
