@@ -1,15 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { useUsers } from "@/hooks/useUsers"
+import { useUsers, useBlockUnblockUser, type User } from "@/hooks/useUsers"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Search } from "lucide-react"
+import { Loader2, Search, ShieldAlert, ShieldCheck } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CopyButton } from "@/components/copy-button"
+import { Button } from "@/components/ui/button"
 
 export default function UsersPage() {
   const [search, setSearch] = useState("")
@@ -22,6 +23,22 @@ export default function UsersPage() {
 
   const { data: usersData, isLoading } = useUsers(params)
   const users = usersData?.results || []
+
+  const [loadingUserId, setLoadingUserId] = useState<string | null>(null)
+  const blockUnblockMutation = useBlockUnblockUser()
+
+  const handleToggleBlock = (user: User) => {
+    setLoadingUserId(user.id)
+    blockUnblockMutation.mutate(Number(user.id), {
+      onSuccess: () => {
+        setLoadingUserId(null)
+      },
+      onError: () => {
+        setLoadingUserId(null)
+      }
+    })
+  }
+
 
   return (
     <div className="space-y-6">
@@ -92,6 +109,7 @@ export default function UsersPage() {
                     <TableHead className="font-semibold text-muted-foreground">Code de Parrainage</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">Statut</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">Inscrit le</TableHead>
+                    <TableHead className="text-right font-semibold text-muted-foreground">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -124,6 +142,28 @@ export default function UsersPage() {
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {new Date(user.date_joined).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleToggleBlock(user)}
+                          disabled={loadingUserId !== null}
+                          className={`h-8 px-3 text-xs font-semibold transition-all duration-200 ${
+                            user.is_block
+                              ? "border-emerald-500/30 text-emerald-600 hover:bg-emerald-50/50 hover:text-emerald-700 hover:border-emerald-500 dark:hover:bg-emerald-950/20"
+                              : "border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive hover:border-destructive dark:hover:bg-destructive/10"
+                          }`}
+                        >
+                          {loadingUserId === user.id ? (
+                            <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                          ) : user.is_block ? (
+                            <ShieldCheck className="h-3 w-3 mr-1" />
+                          ) : (
+                            <ShieldAlert className="h-3 w-3 mr-1" />
+                          )}
+                          {user.is_block ? "Débloquer" : "Bloquer"}
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

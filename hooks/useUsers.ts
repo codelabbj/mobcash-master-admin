@@ -1,7 +1,8 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "@/lib/axios"
+import { toast } from "react-hot-toast"
 
 export interface User {
   id: string
@@ -43,6 +44,25 @@ export function useUsers(params: UsersParams = {}) {
     queryFn: async () => {
       const res = await api.get<UsersResponse>("/auth/users", { params })
       return res.data
+    },
+  })
+}
+
+export function useBlockUnblockUser() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (userId: number) => {
+      const res = await api.post(`/auth/users/block/block`, { user_id: userId })
+      return res.data
+    },
+    onSuccess: (data) => {
+      if (data.blocked) {
+        toast.success("Utilisateur bloqué avec succès !")
+      } else {
+        toast.success("Utilisateur débloqué avec succès !")
+      }
+      queryClient.invalidateQueries({ queryKey: ["users"] })
     },
   })
 }

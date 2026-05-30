@@ -354,6 +354,7 @@ export default function TransactionsPage() {
                       <TableHead className="font-semibold text-muted-foreground">Réseau</TableHead>
                       <TableHead className="font-semibold text-muted-foreground">Statut</TableHead>
                       <TableHead className="font-semibold text-muted-foreground">Source</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground">Message</TableHead>
                       <TableHead className="font-semibold text-muted-foreground">Créé</TableHead>
                       <TableHead className="text-right font-semibold text-muted-foreground">Actions</TableHead>
                     </TableRow>
@@ -401,6 +402,9 @@ export default function TransactionsPage() {
                           ) : (
                             "-"
                           )}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-xs max-w-[200px] truncate" title={transaction.message || transaction.error_message || ""}>
+                          {transaction.message || transaction.error_message || "-"}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
                           {new Date(transaction.created_at).toLocaleDateString('fr-FR', {

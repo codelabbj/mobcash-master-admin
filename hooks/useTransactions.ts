@@ -30,6 +30,12 @@ export interface TransactionAppDetails {
   active_for_with: boolean
 }
 
+export interface TransactionStatusEntry {
+  source: string
+  status: string
+  timestamp: string
+}
+
 export interface Transaction {
   id: number
   user: TransactionUser
@@ -47,12 +53,15 @@ export interface Transaction {
   user_app_id: string | null
   withdriwal_code: string | null
   error_message: string | null
+  message: string | null
   transaction_link: string | null
   net_payable_amout: number | null
   otp_code: string | null
   public_id: string | null
   already_process: boolean
   source: "mobile" | "web" | null
+  payout_started: boolean
+  payout_done: boolean
   old_status: string
   old_public_id: string
   success_webhook_send: boolean
@@ -62,6 +71,14 @@ export interface Transaction {
   telegram_user: number | null
   app: string
   network: number | null
+  api: string | null
+  event_send: boolean
+  fond_calculate: boolean
+  fixed_by_admin: boolean
+  ussd_code: string | null
+  connect_pro_response: string | null
+  credit_used: number
+  all_status: TransactionStatusEntry[] | null
 }
 
 export interface TransactionsResponse {
