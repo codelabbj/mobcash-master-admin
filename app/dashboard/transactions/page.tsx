@@ -35,27 +35,44 @@ export default function TransactionsPage() {
   })
 
   const [scale, setScale] = useState(1)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [height, setHeight] = useState<number | 'auto'>('auto')
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current && containerRef.current.parentElement) {
-        // Get the available width from the parent container
-        const availableWidth = containerRef.current.parentElement.clientWidth
-        // We want to fit 1500px into the available width (to fit all 11 columns comfortably)
+    const updateLayout = () => {
+      if (wrapperRef.current && contentRef.current) {
+        const availableWidth = wrapperRef.current.parentElement?.clientWidth || window.innerWidth;
+        
+        let newScale = 1;
         if (availableWidth < 1500) {
-          // Multiply by 0.98 to add a tiny margin of safety so it doesn't touch the exact edges
-          setScale((availableWidth / 1500) * 0.98)
+          newScale = (availableWidth / 1500) * 0.98;
+          setScale(newScale);
         } else {
-          setScale(1)
+          setScale(1);
+        }
+
+        if (newScale < 1) {
+          setHeight(contentRef.current.scrollHeight * newScale);
+        } else {
+          setHeight('auto');
         }
       }
+    };
+
+    setTimeout(updateLayout, 10);
+    window.addEventListener("resize", updateLayout);
+
+    let observer: ResizeObserver | null = null;
+    if (contentRef.current && window.ResizeObserver) {
+      observer = new ResizeObserver(updateLayout);
+      observer.observe(contentRef.current);
     }
-    
-    // Slight delay on first visit to ensure layout has rendered padding/margins
-    setTimeout(handleResize, 10)
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
+
+    return () => {
+      window.removeEventListener("resize", updateLayout);
+      if (observer) observer.disconnect();
+    };
   }, [])
 
   const { data: transactionsData, isLoading, isError, error } = useTransactions(filters)
@@ -178,8 +195,17 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div ref={containerRef} className="space-y-6 min-w-[1500px] transform-origin-top-left" style={{ zoom: scale }}>
-      <div className="flex items-center justify-between">
+    <div ref={wrapperRef} style={{ height: height === 'auto' ? 'auto' : `${height}px`, overflow: 'visible' }}>
+      <div 
+        ref={contentRef} 
+        className="space-y-6 min-w-[1500px]" 
+        style={{ 
+          transform: `scale(${scale})`, 
+          transformOrigin: 'top left',
+          width: '1500px'
+        }}
+      >
+        <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Transactions</h2>
           <p className="text-muted-foreground">Gérez les dépôts et retraits</p>
@@ -539,6 +565,7 @@ export default function TransactionsPage() {
         onOpenChange={setRewardDialogOpen}
         transaction={selectedTransaction}
       />
+      </div>
     </div>
   )
 }
