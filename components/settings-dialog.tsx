@@ -53,6 +53,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     minimun_deposit_before_view_coupon: "",
     coupon_enable: false,
     allow_all_users_publish_coupons: false,
+    crypto_enable: false,
+    deposit_enable: true,
+    withdraw_enable: true,
   })
 
   useEffect(() => {
@@ -84,6 +87,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         minimun_deposit_before_view_coupon: settings.minimun_deposit_before_view_coupon || "",
         coupon_enable: settings.coupon_enable || false,
         allow_all_users_publish_coupons: settings.allow_all_users_publish_coupons || false,
+        crypto_enable: settings.crypto_enable || false,
+        deposit_enable: settings.deposit_enable ?? true,
+        withdraw_enable: settings.withdraw_enable ?? true,
       })
     }
   }, [settings])
@@ -527,6 +533,52 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 id="allow_all_users_publish_coupons"
                 checked={formData.allow_all_users_publish_coupons}
                 onCheckedChange={(checked) => setFormData({ ...formData, allow_all_users_publish_coupons: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            {/* ── Activation des fonctionnalités ── */}
+            <div className="col-span-2 pt-2">
+              <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                Activation des fonctionnalités
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div>
+                <Label htmlFor="crypto_enable">Crypto activé</Label>
+                <p className="text-xs text-muted-foreground">Activer les fonctionnalités d'achat/vente de cryptomonnaies</p>
+              </div>
+              <Switch
+                id="crypto_enable"
+                checked={formData.crypto_enable}
+                onCheckedChange={(checked) => setFormData({ ...formData, crypto_enable: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div>
+                <Label htmlFor="deposit_enable">Dépôts activés</Label>
+                <p className="text-xs text-muted-foreground">Autoriser les transactions de dépôt</p>
+              </div>
+              <Switch
+                id="deposit_enable"
+                checked={formData.deposit_enable}
+                onCheckedChange={(checked) => setFormData({ ...formData, deposit_enable: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div>
+                <Label htmlFor="withdraw_enable">Retraits activés</Label>
+                <p className="text-xs text-muted-foreground">Autoriser les transactions de retrait</p>
+              </div>
+              <Switch
+                id="withdraw_enable"
+                checked={formData.withdraw_enable}
+                onCheckedChange={(checked) => setFormData({ ...formData, withdraw_enable: checked })}
                 disabled={updateSettings.isPending}
               />
             </div>

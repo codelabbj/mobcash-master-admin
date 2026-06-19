@@ -32,6 +32,10 @@ export interface Settings {
     minimun_deposit_before_view_coupon: string
     coupon_enable: boolean
     allow_all_users_publish_coupons: boolean
+    // Feature toggles
+    crypto_enable: boolean
+    deposit_enable: boolean
+    withdraw_enable: boolean
 }
 
 export type SettingsInput = Omit<Settings, "id">

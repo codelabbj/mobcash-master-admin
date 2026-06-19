@@ -41,5 +41,8 @@ export const CONFIG = {
     PLATFORMS: process.env.NEXT_PUBLIC_ENABLE_PLATFORMS !== "false",
     DEPOSITS: process.env.NEXT_PUBLIC_ENABLE_DEPOSITS !== "false",
     SETTINGS: process.env.NEXT_PUBLIC_ENABLE_SETTINGS !== "false",
+    CRYPTO: process.env.NEXT_PUBLIC_ENABLE_CRYPTO !== "false",
+    CRYPTO_NETWORKS: process.env.NEXT_PUBLIC_ENABLE_CRYPTO_NETWORKS !== "false",
+    CRYPTO_TRANSACTIONS: process.env.NEXT_PUBLIC_ENABLE_CRYPTO_TRANSACTIONS !== "false",
   },
 };

@@ -16,6 +16,8 @@ import {
     CreditCard,
     LucideIcon,
     HandCoins,
+    Bitcoin,
+    Coins,
 } from "lucide-react"
 
 import { CONFIG } from "./config"
@@ -47,5 +49,8 @@ export const navItems: NavItem[] = [
     { href: "/dashboard/bot-transactions", label: "Transactions Bot", icon: Bot, feature: "BOT_TRANSACTIONS" },
     { href: "/dashboard/platforms", label: "Plateformes", icon: Layers, feature: "PLATFORMS" },
     { href: "/dashboard/deposits", label: "Caisses", icon: Wallet, feature: "DEPOSITS" },
+    { href: "/dashboard/crypto", label: "Cryptomonnaies", icon: Bitcoin, feature: "CRYPTO" },
+    { href: "/dashboard/crypto-network", label: "Réseaux Crypto", icon: Coins, feature: "CRYPTO_NETWORKS" },
+    { href: "/dashboard/crypto-transactions", label: "Transactions Crypto", icon: ArrowLeftRight, feature: "CRYPTO_TRANSACTIONS" },
     { href: "/dashboard/settings", label: "Paramètres", icon: Settings, feature: "SETTINGS" },
 ]

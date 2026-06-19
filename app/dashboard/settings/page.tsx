@@ -228,6 +228,43 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* ── Activation des fonctionnalités ── */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Activation des fonctionnalités</CardTitle>
+              <CardDescription>Activer ou désactiver les grandes fonctionnalités de la plateforme</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-3">
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Crypto</p>
+                  <p className="text-xs text-muted-foreground">Achat & vente de cryptomonnaies</p>
+                </div>
+                <Badge variant={settings.crypto_enable ? "default" : "secondary"}>
+                  {settings.crypto_enable ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Dépôts</p>
+                  <p className="text-xs text-muted-foreground">Transactions de dépôt</p>
+                </div>
+                <Badge variant={settings.deposit_enable ? "default" : "secondary"}>
+                  {settings.deposit_enable ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Retraits</p>
+                  <p className="text-xs text-muted-foreground">Transactions de retrait</p>
+                </div>
+                <Badge variant={settings.withdraw_enable ? "default" : "secondary"}>
+                  {settings.withdraw_enable ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       ) : (
         <div className="text-center py-8 text-muted-foreground">Aucun paramètre trouvé</div>
