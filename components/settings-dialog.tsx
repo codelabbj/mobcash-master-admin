@@ -56,6 +56,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     crypto_enable: false,
     deposit_enable: true,
     withdraw_enable: true,
+    use_whatsapp: false,
+    use_chatbot: false,
+    use_telegram: false,
+    use_sms: false,
+    openwa_session_id: null,
+    openwa_token: "",
+    telegram_bot_username: null,
+    telegram_bot_token: "",
   })
 
   useEffect(() => {
@@ -90,6 +98,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         crypto_enable: settings.crypto_enable || false,
         deposit_enable: settings.deposit_enable ?? true,
         withdraw_enable: settings.withdraw_enable ?? true,
+        use_whatsapp: settings.use_whatsapp ?? false,
+        use_chatbot: settings.use_chatbot ?? false,
+        use_telegram: settings.use_telegram ?? false,
+        use_sms: settings.use_sms ?? false,
+        openwa_session_id: settings.openwa_session_id || null,
+        openwa_token: "",
+        telegram_bot_username: settings.telegram_bot_username || null,
+        telegram_bot_token: "",
       })
     }
   }, [settings])
@@ -580,6 +596,118 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 checked={formData.withdraw_enable}
                 onCheckedChange={(checked) => setFormData({ ...formData, withdraw_enable: checked })}
                 disabled={updateSettings.isPending}
+              />
+            </div>
+
+            {/* ── Canaux de notification (My Customer / Telegram / SMS) ── */}
+            <div className="col-span-2 pt-4 border-t">
+              <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                Canaux de notification (alertes)
+              </p>
+              <p className="text-xs text-muted-foreground mb-4">
+                WhatsApp &amp; Assistant IA via My Customer (
+                <code className="text-[11px]">https://api.mycustomer.manoschange.com/api/v1</code>
+                ). Même clé API (<code className="text-[11px]">openwa_token</code>) pour WhatsApp et chatbot.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div>
+                <Label htmlFor="use_whatsapp">Activer WhatsApp</Label>
+                <p className="text-xs text-muted-foreground">Alertes / validation via My Customer</p>
+              </div>
+              <Switch
+                id="use_whatsapp"
+                checked={formData.use_whatsapp}
+                onCheckedChange={(checked) => setFormData({ ...formData, use_whatsapp: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div>
+                <Label htmlFor="use_chatbot">Activer le chatbot (app)</Label>
+                <p className="text-xs text-muted-foreground">Assistant IA in-app (même clé My Customer)</p>
+              </div>
+              <Switch
+                id="use_chatbot"
+                checked={formData.use_chatbot}
+                onCheckedChange={(checked) => setFormData({ ...formData, use_chatbot: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="openwa_token">My Customer API Key</Label>
+              <Input
+                id="openwa_token"
+                type="password"
+                value={formData.openwa_token || ""}
+                onChange={(e) => setFormData({ ...formData, openwa_token: e.target.value })}
+                placeholder="Laisser vide pour conserver la clé actuelle"
+                disabled={updateSettings.isPending}
+                autoComplete="new-password"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="openwa_session_id">Session ID (obsolète)</Label>
+              <Input
+                id="openwa_session_id"
+                value={formData.openwa_session_id || ""}
+                onChange={(e) => setFormData({ ...formData, openwa_session_id: e.target.value || null })}
+                placeholder="Plus utilisé — ligne gérée dans My Customer"
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div>
+                <Label htmlFor="use_telegram">Activer Telegram</Label>
+                <p className="text-xs text-muted-foreground">Alertes via bot Telegram</p>
+              </div>
+              <Switch
+                id="use_telegram"
+                checked={formData.use_telegram}
+                onCheckedChange={(checked) => setFormData({ ...formData, use_telegram: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div>
+                <Label htmlFor="use_sms">Activer SMS (Connect Pro)</Label>
+                <p className="text-xs text-muted-foreground">Canal SMS pour les alertes</p>
+              </div>
+              <Switch
+                id="use_sms"
+                checked={formData.use_sms}
+                onCheckedChange={(checked) => setFormData({ ...formData, use_sms: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="telegram_bot_username">Bot Telegram (@username)</Label>
+              <Input
+                id="telegram_bot_username"
+                value={formData.telegram_bot_username || ""}
+                onChange={(e) => setFormData({ ...formData, telegram_bot_username: e.target.value || null })}
+                placeholder="@mon_bot"
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="telegram_bot_token">Token bot Telegram</Label>
+              <Input
+                id="telegram_bot_token"
+                type="password"
+                value={formData.telegram_bot_token || ""}
+                onChange={(e) => setFormData({ ...formData, telegram_bot_token: e.target.value })}
+                placeholder="Laisser vide pour conserver le token actuel"
+                disabled={updateSettings.isPending}
+                autoComplete="new-password"
               />
             </div>
 

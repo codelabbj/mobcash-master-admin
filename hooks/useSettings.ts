@@ -36,6 +36,17 @@ export interface Settings {
     crypto_enable: boolean
     deposit_enable: boolean
     withdraw_enable: boolean
+    // Canaux My Customer / Telegram / SMS
+    use_whatsapp: boolean
+    use_chatbot: boolean
+    use_telegram: boolean
+    use_sms: boolean
+    openwa_session_id?: string | null
+    /** Write-only : jamais renvoyé par le GET admin */
+    openwa_token?: string | null
+    telegram_bot_username?: string | null
+    /** Write-only : jamais renvoyé par le GET admin */
+    telegram_bot_token?: string | null
 }
 
 export type SettingsInput = Omit<Settings, "id">
@@ -56,7 +67,15 @@ export function useUpdateSettings() {
 
     return useMutation({
         mutationFn: async (data: Partial<SettingsInput>) => {
-            const res = await api.put<Settings>("/mobcash/setting", data)
+            // Ne pas écraser les secrets si le champ est laissé vide
+            const payload: Record<string, unknown> = { ...data }
+            if (!String(payload.openwa_token || "").trim()) {
+                delete payload.openwa_token
+            }
+            if (!String(payload.telegram_bot_token || "").trim()) {
+                delete payload.telegram_bot_token
+            }
+            const res = await api.put<Settings>("/mobcash/setting", payload)
             return res.data
         },
         onSuccess: () => {

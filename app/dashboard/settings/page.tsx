@@ -265,6 +265,58 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* ── Canaux de notification ── */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Canaux de notification</CardTitle>
+              <CardDescription>
+                WhatsApp &amp; Assistant IA (My Customer), Telegram et SMS — mêmes flags que l’app mobile
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">WhatsApp</p>
+                  <p className="text-xs text-muted-foreground">Alertes My Customer</p>
+                </div>
+                <Badge variant={settings.use_whatsapp ? "default" : "secondary"}>
+                  {settings.use_whatsapp ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Assistant IA</p>
+                  <p className="text-xs text-muted-foreground">Chatbot in-app</p>
+                </div>
+                <Badge variant={settings.use_chatbot ? "default" : "secondary"}>
+                  {settings.use_chatbot ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Telegram</p>
+                  <p className="text-xs text-muted-foreground">
+                    {settings.telegram_bot_username
+                      ? `@${String(settings.telegram_bot_username).replace(/^@/, "")}`
+                      : "Bot non configuré"}
+                  </p>
+                </div>
+                <Badge variant={settings.use_telegram ? "default" : "secondary"}>
+                  {settings.use_telegram ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">SMS</p>
+                  <p className="text-xs text-muted-foreground">Connect Pro</p>
+                </div>
+                <Badge variant={settings.use_sms ? "default" : "secondary"}>
+                  {settings.use_sms ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       ) : (
         <div className="text-center py-8 text-muted-foreground">Aucun paramètre trouvé</div>
