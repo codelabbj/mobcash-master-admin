@@ -21,10 +21,13 @@ export interface NotificationsResponse {
     results: Notification[]
 }
 
+export type NotificationChannel = "push" | "whatsapp" | "telegram" | "sms" | "all"
+
 export interface SendNotificationInput {
     content: string
     title: string
-    user_id: string|number|null
+    user_id: string | number | null
+    channel?: NotificationChannel
 }
 
 export function useNotifications(page:number) {
@@ -48,12 +51,28 @@ export function useSendNotification() {
             const res = await api.post(url, {
                 content: data.content,
                 title: data.title,
+                channel: data.channel ?? "push",
             })
             return res.data
         },
-        onSuccess: () => {
-            toast.success("Notification sent successfully!")
+        onSuccess: (_data, variables) => {
+            const channel = variables.channel ?? "push"
+            const labels: Record<NotificationChannel, string> = {
+                push: "Push",
+                whatsapp: "WhatsApp",
+                telegram: "Telegram",
+                sms: "SMS",
+                all: "Tous canaux",
+            }
+            toast.success(`Message ${labels[channel]} envoyé avec succès`)
             queryClient.invalidateQueries({ queryKey: ["notifications"] })
+        },
+        onError: (error: any) => {
+            const details =
+                error?.response?.data?.details ||
+                error?.response?.data?.detail ||
+                "Échec de l'envoi"
+            toast.error(String(details))
         },
     })
 }

@@ -3,7 +3,7 @@
 import React, { useEffect } from "react"
 
 import { useState } from "react"
-import { useSendNotification } from "@/hooks/useNotifications"
+import { useSendNotification, type NotificationChannel } from "@/hooks/useNotifications"
 import { useBotUsers } from "@/hooks/useBotUsers"
 import {
     Dialog,
@@ -215,6 +215,7 @@ export function SendNotificationDialog({ open, onOpenChange }: SendNotificationD
     const [debouncedUsersSearchTerm, setDebouncedUsersSearchTerm] = useState("")
     const [debouncedBotUsersSearchTerm, setDebouncedBotUsersSearchTerm] = useState("")
     const [notificationType, setNotificationType] = useState<NotificationType>("all")
+    const [channel, setChannel] = useState<NotificationChannel>("push")
     const sendNotification = useSendNotification()
     const { data: botUsersData, isLoading: isLoadingBotUsers } = useBotUsers({ search: debouncedBotUsersSearchTerm })
     const { data: usersData, isLoading: isLoadingUser } = useUsers(debouncedUsersSearchTerm)
@@ -253,10 +254,10 @@ export function SendNotificationDialog({ open, onOpenChange }: SendNotificationD
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
 
-        let payloadData = { ...formData }
+        let payloadData = { ...formData, channel }
 
         if (notificationType === "all") {
-            payloadData = { title: formData.title, content: formData.content, user_id: null }
+            payloadData = { title: formData.title, content: formData.content, user_id: null, channel }
         }
 
         sendNotification.mutate(payloadData, {
@@ -264,9 +265,12 @@ export function SendNotificationDialog({ open, onOpenChange }: SendNotificationD
                 onOpenChange(false)
                 setFormData({ title: "", content: "", user_id: null })
                 setNotificationType("all")
+                setChannel("push")
             },
         })
     }
+
+    const showMessagingChannels = notificationType !== "bot_user"
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -280,12 +284,36 @@ export function SendNotificationDialog({ open, onOpenChange }: SendNotificationD
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
+                        <Label htmlFor="channel">Canal *</Label>
+                        <Select
+                            value={channel}
+                            onValueChange={(value) => setChannel(value as NotificationChannel)}
+                        >
+                            <SelectTrigger id="channel">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="push">Push (in-app)</SelectItem>
+                                {showMessagingChannels && (
+                                    <>
+                                        <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                                        <SelectItem value="telegram">Telegram</SelectItem>
+                                        <SelectItem value="sms">SMS</SelectItem>
+                                    </>
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
                         <Label htmlFor="notification_type">Type de Notification *</Label>
                         <Select
                             value={notificationType}
                             onValueChange={(value) => {
-                                setNotificationType(value as NotificationType)
+                                const next = value as NotificationType
+                                setNotificationType(next)
                                 setFormData({ ...formData, user_id: null })
+                                if (next === "bot_user") setChannel("push")
                             }}
                         >
                             <SelectTrigger id="notification_type">

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSendNotification } from "@/hooks/useNotifications"
+import { useSendNotification, type NotificationChannel } from "@/hooks/useNotifications"
 import { useBotUsers } from "@/hooks/useBotUsers"
 import { useUsers } from "@/hooks/use-profile"
 import { Button } from "@/components/ui/button"
@@ -19,7 +19,11 @@ import {
     CheckCircle2,
     ChevronLeft,
     ChevronRight,
-    ArrowLeft
+    ArrowLeft,
+    Bell,
+    MessageCircle,
+    SendHorizontal,
+    Smartphone
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
@@ -27,10 +31,24 @@ import { useRouter } from "next/navigation"
 type RecipientType = "regular" | "bot"
 type BroadcastMode = "all" | "specific"
 
+const CHANNELS: {
+    id: NotificationChannel
+    label: string
+    hint: string
+    icon: typeof Bell
+    regularOnly?: boolean
+}[] = [
+    { id: "push", label: "Push", hint: "Notification in-app + push", icon: Bell },
+    { id: "whatsapp", label: "WhatsApp", hint: "My Customer (numéro vérifié)", icon: MessageCircle, regularOnly: true },
+    { id: "telegram", label: "Telegram", hint: "Compte Telegram lié", icon: SendHorizontal, regularOnly: true },
+    { id: "sms", label: "SMS", hint: "SMS vers le téléphone", icon: Smartphone, regularOnly: true },
+]
+
 export default function NotificationSenderPage() {
     const router = useRouter()
     const [recipientType, setRecipientType] = useState<RecipientType>("regular")
     const [broadcastMode, setBroadcastMode] = useState<BroadcastMode>("all")
+    const [channel, setChannel] = useState<NotificationChannel>("push")
     const [searchTerm, setSearchTerm] = useState("")
     const [debouncedSearch, setDebouncedSearch] = useState("")
     const [selectedUserId, setSelectedUserId] = useState<string | number | null>(null)
@@ -54,13 +72,18 @@ export default function NotificationSenderPage() {
     const users = (recipientType === "regular" ? usersData?.results : botUsersData) || []
     const isLoading = recipientType === "regular" ? isLoadingUsers : isLoadingBotUsers
 
+    const availableChannels = CHANNELS.filter(
+        (c) => recipientType === "regular" || !c.regularOnly
+    )
+
     const handleSend = () => {
         if (!formData.title || !formData.content) return
 
         const payload = {
             title: formData.title,
             content: formData.content,
-            user_id: broadcastMode === "all" ? null : selectedUserId
+            user_id: broadcastMode === "all" ? null : selectedUserId,
+            channel,
         }
 
         sendNotification.mutate(payload, {
@@ -127,6 +150,7 @@ export default function NotificationSenderPage() {
                             onClick={() => {
                                 setRecipientType("bot")
                                 setSelectedUserId(null)
+                                setChannel("push")
                             }}
                         >
                             <div className="flex items-center gap-2">
@@ -138,6 +162,44 @@ export default function NotificationSenderPage() {
                 </CardHeader>
 
                 <CardContent className="p-8 space-y-8">
+                    {/* Channel SECTION */}
+                    <div className="space-y-4">
+                        <Label className="text-sm font-bold uppercase tracking-tight">Canal d&apos;envoi</Label>
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            {availableChannels.map((item) => {
+                                const Icon = item.icon
+                                const selected = channel === item.id
+                                return (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        onClick={() => setChannel(item.id)}
+                                        className={cn(
+                                            "rounded-xl border p-4 text-left transition-all",
+                                            selected
+                                                ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                                                : "border-border/60 hover:border-primary/40 hover:bg-muted/40"
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Icon className={cn("h-4 w-4", selected ? "text-primary" : "text-muted-foreground")} />
+                                            <span className="font-semibold text-sm">{item.label}</span>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">{item.hint}</p>
+                                    </button>
+                                )
+                            })}
+                        </div>
+                        {channel === "whatsapp" && (
+                            <p className="text-xs text-muted-foreground">
+                                WhatsApp nécessite <strong>use_whatsapp</strong> + <strong>openwa_token</strong> dans Paramètres,
+                                et un numéro WhatsApp vérifié côté utilisateur.
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="h-px bg-border/40" />
+
                     {/* Message Details SECTION */}
                     <div className="space-y-6">
                         <div className="grid gap-6 sm:grid-cols-2">
@@ -292,7 +354,13 @@ export default function NotificationSenderPage() {
                             ) : (
                                 <>
                                     <Send className="mr-2 h-5 w-5" />
-                                    Diffuser le Message
+                                    {channel === "whatsapp"
+                                        ? "Envoyer WhatsApp"
+                                        : channel === "telegram"
+                                          ? "Envoyer Telegram"
+                                          : channel === "sms"
+                                            ? "Envoyer SMS"
+                                            : "Diffuser le Message"}
                                 </>
                             )}
                         </Button>
