@@ -5,6 +5,8 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useCreateNetwork, useUpdateNetwork, type Network, type NetworkInput } from "@/hooks/useNetworks"
 import { toast } from "react-hot-toast"
+import { uploadFile } from "@/lib/upload"
+
 import {
     Dialog,
     DialogContent,
@@ -183,17 +185,24 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
         }
     }
 
-    const handleScreenshotFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const next = e.target.files[0]
-            setScreenshotFile(next)
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                const result = reader.result as string
-                setSelectedScreenshot(result)
-                setFormData({ ...formData, screenshot_example: result })
-            }
-            reader.readAsDataURL(next)
+    const handleScreenshotFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!(e.target.files && e.target.files[0])) return
+        const next = e.target.files[0]
+        // Aperçu local immédiat
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            setSelectedScreenshot(reader.result as string)
+        }
+        reader.readAsDataURL(next)
+        try {
+            // Même API que le logo : /mobcash/upload
+            const url = await uploadFile(next)
+            setScreenshotFile(null)
+            setFormData((prev) => ({ ...prev, screenshot_example: url }))
+            setSelectedScreenshot(url)
+        } catch {
+            setScreenshotFile(null)
+            // toast déjà géré dans uploadFile
         }
     }
 
@@ -272,6 +281,13 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
         e.preventDefault()
 
         const dataToSubmit = { ...formData }
+        // Ne jamais envoyer un data-URL base64 (aperçu local).
+        if (
+            typeof dataToSubmit.screenshot_example === "string" &&
+            dataToSubmit.screenshot_example.startsWith("data:")
+        ) {
+            dataToSubmit.screenshot_example = network?.screenshot_example || ""
+        }
 
         if (!dataToSubmit.payment_by_ussd_code) {
             // Remove those keys from payload if USSD payment is disabled
