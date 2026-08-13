@@ -66,6 +66,8 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
     const updateNetwork = useUpdateNetwork()
     const [selectedImage, setSelectedImage] = useState<string | null>(null)
     const [file, setFile] = useState<File | null>(null)
+    const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null)
+    const [screenshotFile, setScreenshotFile] = useState<File | null>(null)
 
     const [formData, setFormData] = useState<NetworkInput>({
         name: "",
@@ -74,6 +76,7 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
         country_code: "",
         indication: "",
         image: "",
+        screenshot_example: "",
         withdrawal_message: null,
         deposit_api: "connect",
         withdrawal_api: "connect",
@@ -105,6 +108,7 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                 country_code: network.country_code,
                 indication: network.indication,
                 image: network.image,
+                screenshot_example: network.screenshot_example || "",
                 withdrawal_message: network.withdrawal_message,
                 deposit_api: network.deposit_api,
                 withdrawal_api: network.withdrawal_api,
@@ -127,6 +131,7 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                 fee_slice_fixed: network.fee_slice_fixed ?? 0,
             })
             setSelectedImage(network.image)
+            setSelectedScreenshot(network.screenshot_example || null)
         } else {
             setFormData({
                 name: "",
@@ -135,6 +140,7 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                 country_code: "",
                 indication: "",
                 image: "",
+                screenshot_example: "",
                 withdrawal_message: null,
                 deposit_api: "connect",
                 withdrawal_api: "connect",
@@ -157,8 +163,10 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                 fee_slice_fixed: 0,
             })
             setSelectedImage(null)
+            setSelectedScreenshot(null)
         }
         setFile(null)
+        setScreenshotFile(null)
     }, [network])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,6 +183,20 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
         }
     }
 
+    const handleScreenshotFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const next = e.target.files[0]
+            setScreenshotFile(next)
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                const result = reader.result as string
+                setSelectedScreenshot(result)
+                setFormData({ ...formData, screenshot_example: result })
+            }
+            reader.readAsDataURL(next)
+        }
+    }
+
     const handleDialogOpenChange = (open: boolean) => {
         if (!open) {
             if (network) {
@@ -185,6 +207,7 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                     country_code: network.country_code,
                     indication: network.indication,
                     image: network.image,
+                    screenshot_example: network.screenshot_example || "",
                     withdrawal_message: network.withdrawal_message,
                     deposit_api: network.deposit_api,
                     withdrawal_api: network.withdrawal_api,
@@ -207,6 +230,7 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                     fee_slice_fixed: network.fee_slice_fixed ?? 0,
                 })
                 setSelectedImage(network.image)
+                setSelectedScreenshot(network.screenshot_example || null)
             } else {
                 setFormData({
                     name: "",
@@ -215,6 +239,7 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                     country_code: "",
                     indication: "",
                     image: "",
+                    screenshot_example: "",
                     withdrawal_message: null,
                     deposit_api: "connect",
                     withdrawal_api: "connect",
@@ -237,6 +262,7 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                     fee_slice_fixed: 0,
                 })
                 setSelectedImage(null)
+                setSelectedScreenshot(null)
             }
         }
         onOpenChange(open)
@@ -264,17 +290,29 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
 
         if (network) {
             updateNetwork.mutate(
-                { id: network.id, data: dataToSubmit, file: file ?? undefined },
+                {
+                    id: network.id,
+                    data: dataToSubmit,
+                    file: file ?? undefined,
+                    screenshotFile: screenshotFile ?? undefined,
+                },
                 {
                     onSuccess: () => handleDialogOpenChange(false),
                 },
             )
         } else {
-            createNetwork.mutate({ data: dataToSubmit, file: file ?? undefined }, {
-                onSuccess: () => {
-                    handleDialogOpenChange(false)
+            createNetwork.mutate(
+                {
+                    data: dataToSubmit,
+                    file: file ?? undefined,
+                    screenshotFile: screenshotFile ?? undefined,
                 },
-            })
+                {
+                    onSuccess: () => {
+                        handleDialogOpenChange(false)
+                    },
+                },
+            )
         }
     }
 
@@ -321,6 +359,40 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                             </div>
                         )}
                     </div>
+
+                    <div className="space-y-2">
+                        <Label>Exemple de capture (support chatbot)</Label>
+                        <p className="text-xs text-muted-foreground">
+                            Image montrée au client lors d&apos;une demande de capture pour ce réseau.
+                        </p>
+                        <Input
+                            id="screenshot-upload-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleScreenshotFileChange}
+                            className="hidden"
+                        />
+                        {selectedScreenshot ? (
+                            <div
+                                className="relative group w-full h-40 rounded-lg overflow-hidden"
+                                onClick={() => document.getElementById("screenshot-upload-input")?.click()}
+                            >
+                                <img src={selectedScreenshot} alt="Exemple de capture" className="w-full h-full object-contain bg-muted" />
+                                <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center opacity-0 group-hover:opacity-70 transition-opacity cursor-pointer">
+                                    <p className="text-white text-sm">Changer l&apos;exemple</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div
+                                onClick={() => document.getElementById("screenshot-upload-input")?.click()}
+                                className="border-2 border-dashed border-input rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                            >
+                                <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                <p className="text-sm text-muted-foreground">Téléverser un exemple de capture</p>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="name">Réseau *</Label>

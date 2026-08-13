@@ -14,6 +14,7 @@ export interface Network {
     country_code: string
     indication: string
     image: string
+    screenshot_example: string
     withdrawal_message: string | null
     deposit_api: string
     withdrawal_api: string
@@ -52,12 +53,18 @@ export function useCreateNetwork() {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async ({ data, file }: { data: NetworkInput, file?: File }) => {
+        mutationFn: async ({ data, file, screenshotFile }: { data: NetworkInput, file?: File, screenshotFile?: File }) => {
             if (file) {
                 const uploadData = new FormData();
                 uploadData.append("file", file);
                 const uploadedFile = (await api.post<AppFile>('/mobcash/upload', uploadData)).data
                 data.image = uploadedFile.file
+            }
+            if (screenshotFile) {
+                const uploadData = new FormData();
+                uploadData.append("file", screenshotFile);
+                const uploadedFile = (await api.post<AppFile>('/mobcash/upload', uploadData)).data
+                data.screenshot_example = uploadedFile.file
             }
             const res = await api.post<Network>("/mobcash/network", data)
             return res.data
@@ -73,12 +80,18 @@ export function useUpdateNetwork() {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async ({ id, data, file }: { id: number; data: Partial<NetworkInput>, file?: File }) => {
+        mutationFn: async ({ id, data, file, screenshotFile }: { id: number; data: Partial<NetworkInput>, file?: File, screenshotFile?: File }) => {
             if (file) {
                 const uploadData = new FormData();
                 uploadData.append("file", file);
                 const uploadedFile = (await api.post<AppFile>('/mobcash/upload', uploadData)).data
                 data.image = uploadedFile.file
+            }
+            if (screenshotFile) {
+                const uploadData = new FormData();
+                uploadData.append("file", screenshotFile);
+                const uploadedFile = (await api.post<AppFile>('/mobcash/upload', uploadData)).data
+                data.screenshot_example = uploadedFile.file
             }
             const res = await api.patch<Network>(`/mobcash/network/${id}`, data)
             return res.data
