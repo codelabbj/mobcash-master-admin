@@ -272,6 +272,15 @@ export default function SettingsPage() {
                   {settings.registration_enabled ? "Activé" : "Désactivé"}
                 </Badge>
               </div>
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Support WhatsApp</p>
+                  <p className="text-xs text-muted-foreground">Contact ouvre WhatsApp au lieu du chatbot</p>
+                </div>
+                <Badge variant={settings.open_whatsapp_for_support ? "default" : "secondary"}>
+                  {settings.open_whatsapp_for_support ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
             </CardContent>
           </Card>
 
@@ -300,6 +309,15 @@ export default function SettingsPage() {
                 </div>
                 <Badge variant={settings.use_chatbot ? "default" : "secondary"}>
                   {settings.use_chatbot ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Support WhatsApp</p>
+                  <p className="text-xs text-muted-foreground">Contact ouvre WhatsApp</p>
+                </div>
+                <Badge variant={settings.open_whatsapp_for_support ? "default" : "secondary"}>
+                  {settings.open_whatsapp_for_support ? "Activé" : "Désactivé"}
                 </Badge>
               </div>
               <div className="flex items-center justify-between rounded-lg border p-4">

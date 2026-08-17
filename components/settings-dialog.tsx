@@ -59,6 +59,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     registration_enabled: true,
     use_whatsapp: false,
     use_chatbot: false,
+    open_whatsapp_for_support: false,
     use_telegram: false,
     use_sms: false,
     openwa_session_id: null,
@@ -102,6 +103,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         registration_enabled: settings.registration_enabled ?? true,
         use_whatsapp: settings.use_whatsapp ?? false,
         use_chatbot: settings.use_chatbot ?? false,
+        open_whatsapp_for_support: settings.open_whatsapp_for_support ?? false,
         use_telegram: settings.use_telegram ?? false,
         use_sms: settings.use_sms ?? false,
         openwa_session_id: settings.openwa_session_id || null,
@@ -610,6 +612,19 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 id="registration_enabled"
                 checked={formData.registration_enabled}
                 onCheckedChange={(checked) => setFormData({ ...formData, registration_enabled: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div>
+                <Label htmlFor="open_whatsapp_for_support">Support via WhatsApp</Label>
+                <p className="text-xs text-muted-foreground">Si activé, Contacter support ouvre WhatsApp au lieu du chatbot</p>
+              </div>
+              <Switch
+                id="open_whatsapp_for_support"
+                checked={formData.open_whatsapp_for_support}
+                onCheckedChange={(checked) => setFormData({ ...formData, open_whatsapp_for_support: checked })}
                 disabled={updateSettings.isPending}
               />
             </div>

@@ -40,6 +40,7 @@ export interface Settings {
     // Canaux My Customer / Telegram / SMS
     use_whatsapp: boolean
     use_chatbot: boolean
+    open_whatsapp_for_support: boolean
     use_telegram: boolean
     use_sms: boolean
     openwa_session_id?: string | null
