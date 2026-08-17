@@ -36,6 +36,7 @@ export interface Settings {
     crypto_enable: boolean
     deposit_enable: boolean
     withdraw_enable: boolean
+    registration_enabled: boolean
     // Canaux My Customer / Telegram / SMS
     use_whatsapp: boolean
     use_chatbot: boolean

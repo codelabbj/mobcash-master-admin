@@ -56,6 +56,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     crypto_enable: false,
     deposit_enable: true,
     withdraw_enable: true,
+    registration_enabled: true,
     use_whatsapp: false,
     use_chatbot: false,
     use_telegram: false,
@@ -98,6 +99,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         crypto_enable: settings.crypto_enable || false,
         deposit_enable: settings.deposit_enable ?? true,
         withdraw_enable: settings.withdraw_enable ?? true,
+        registration_enabled: settings.registration_enabled ?? true,
         use_whatsapp: settings.use_whatsapp ?? false,
         use_chatbot: settings.use_chatbot ?? false,
         use_telegram: settings.use_telegram ?? false,
@@ -595,6 +597,19 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 id="withdraw_enable"
                 checked={formData.withdraw_enable}
                 onCheckedChange={(checked) => setFormData({ ...formData, withdraw_enable: checked })}
+                disabled={updateSettings.isPending}
+              />
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div>
+                <Label htmlFor="registration_enabled">Inscriptions activées</Label>
+                <p className="text-xs text-muted-foreground">Autoriser la création de nouveaux comptes (formulaire et Google)</p>
+              </div>
+              <Switch
+                id="registration_enabled"
+                checked={formData.registration_enabled}
+                onCheckedChange={(checked) => setFormData({ ...formData, registration_enabled: checked })}
                 disabled={updateSettings.isPending}
               />
             </div>

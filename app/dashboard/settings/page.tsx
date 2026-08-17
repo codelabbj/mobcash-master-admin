@@ -235,7 +235,7 @@ export default function SettingsPage() {
               <CardTitle>Activation des fonctionnalités</CardTitle>
               <CardDescription>Activer ou désactiver les grandes fonctionnalités de la plateforme</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-3">
+            <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">Crypto</p>
@@ -261,6 +261,15 @@ export default function SettingsPage() {
                 </div>
                 <Badge variant={settings.withdraw_enable ? "default" : "secondary"}>
                   {settings.withdraw_enable ? "Activé" : "Désactivé"}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Inscriptions</p>
+                  <p className="text-xs text-muted-foreground">Création de nouveaux comptes</p>
+                </div>
+                <Badge variant={settings.registration_enabled ? "default" : "secondary"}>
+                  {settings.registration_enabled ? "Activé" : "Désactivé"}
                 </Badge>
               </div>
             </CardContent>
