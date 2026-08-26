@@ -18,10 +18,35 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Loader2, Upload } from "lucide-react"
 
+const emptyPlatformForm = (): PlatformInput => ({
+    name: "",
+    image: "",
+    enable: true,
+    active_for_deposit: true,
+    active_for_with: true,
+    deposit_tuto_link: null,
+    withdrawal_tuto_link: null,
+    why_withdrawal_fail: null,
+    order: null,
+    city: null,
+    street: null,
+    minimun_deposit: 200,
+    max_deposit: 100000,
+    minimun_with: 300,
+    max_win: 1000000,
+    manual_processing: false,
+    hash: null,
+    cashdeskid: null,
+    cashierpass: null,
+    betmomo_token: "",
+    betmomo_email: "",
+    betmomo_password: "",
+})
+
 interface PlatformDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    platform?: PlatformInput & { id?: string }
+    platform?: PlatformInput & { id?: string; uses_betmomo?: boolean; has_betmomo_token?: boolean }
 }
 
 export function PlatformDialog({ open, onOpenChange, platform }: PlatformDialogProps) {
@@ -30,27 +55,7 @@ export function PlatformDialog({ open, onOpenChange, platform }: PlatformDialogP
     const [selectedImage, setSelectedImage] = useState<string | null>(null)
     const [file, setFile] = useState<File | null>(null)
 
-    const [formData, setFormData] = useState<PlatformInput>({
-        name: "",
-        image: "",
-        enable: true,
-        active_for_deposit: true,
-        active_for_with: true,
-        deposit_tuto_link: null,
-        withdrawal_tuto_link: null,
-        why_withdrawal_fail: null,
-        order: null,
-        city: null,
-        street: null,
-        minimun_deposit: 200,
-        max_deposit: 100000,
-        minimun_with: 300,
-        max_win: 1000000,
-        manual_processing: false,
-        hash: null,
-        cashdeskid: null,
-        cashierpass: null,
-    })
+    const [formData, setFormData] = useState<PlatformInput>(emptyPlatformForm())
 
     useEffect(() => {
         if (platform) {
@@ -74,30 +79,14 @@ export function PlatformDialog({ open, onOpenChange, platform }: PlatformDialogP
                 hash: platform.hash,
                 cashdeskid: platform.cashdeskid,
                 cashierpass: platform.cashierpass,
+                // Secrets non renvoyés par l'API — laisser vide pour conserver
+                betmomo_token: "",
+                betmomo_email: "",
+                betmomo_password: "",
             })
             setSelectedImage(platform.image)
         } else {
-            setFormData({
-                name: "",
-                image: "",
-                enable: true,
-                active_for_deposit: true,
-                active_for_with: true,
-                deposit_tuto_link: null,
-                withdrawal_tuto_link: null,
-                why_withdrawal_fail: null,
-                order: null,
-                city: null,
-                street: null,
-                minimun_deposit: 200,
-                max_deposit: 100000,
-                minimun_with: 300,
-                max_win: 1000000,
-                manual_processing: false,
-                hash: null,
-                cashdeskid: null,
-                cashierpass: null,
-            })
+            setFormData(emptyPlatformForm())
             setSelectedImage(null)
         }
         setFile(null)
@@ -126,27 +115,7 @@ export function PlatformDialog({ open, onOpenChange, platform }: PlatformDialogP
                 {
                     onSuccess: () => {
                         onOpenChange(false)
-                        setFormData({
-                            name: "",
-                            image: "",
-                            enable: true,
-                            active_for_deposit: true,
-                            active_for_with: true,
-                            deposit_tuto_link: null,
-                            withdrawal_tuto_link: null,
-                            why_withdrawal_fail: null,
-                            order: null,
-                            city: null,
-                            street: null,
-                            minimun_deposit: 200,
-                            max_deposit: 100000,
-                            minimun_with: 300,
-                            max_win: 1000000,
-                            manual_processing: false,
-                            hash: null,
-                            cashdeskid: null,
-                            cashierpass: null,
-                        })
+                        setFormData(emptyPlatformForm())
                         setSelectedImage(null)
                         setFile(null)
                     },
@@ -158,27 +127,7 @@ export function PlatformDialog({ open, onOpenChange, platform }: PlatformDialogP
                 {
                     onSuccess: () => {
                         onOpenChange(false)
-                        setFormData({
-                            name: "",
-                            image: "",
-                            enable: true,
-                            active_for_deposit: true,
-                            active_for_with: true,
-                            deposit_tuto_link: null,
-                            withdrawal_tuto_link: null,
-                            why_withdrawal_fail: null,
-                            order: null,
-                            city: null,
-                            street: null,
-                            minimun_deposit: 200,
-                            max_deposit: 100000,
-                            minimun_with: 300,
-                            max_win: 1000000,
-                            manual_processing: false,
-                            hash: null,
-                            cashdeskid: null,
-                            cashierpass: null,
-                        })
+                        setFormData(emptyPlatformForm())
                         setSelectedImage(null)
                         setFile(null)
                     },
@@ -349,6 +298,71 @@ export function PlatformDialog({ open, onOpenChange, platform }: PlatformDialogP
                                 onChange={(e) => setFormData({ ...formData, cashierpass: e.target.value || null })}
                                 disabled={isPending}
                             />
+                        </div>
+
+                        <div className="md:col-span-2 border-t border-border pt-4 space-y-4">
+                            <div>
+                                <h4 className="text-sm font-semibold">Configuration BetMomo (optionnel)</h4>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Si le nom de la plateforme est BETMOMO et qu&apos;un token est renseigné,
+                                    les dépôts/retraits passent par l&apos;API BetMomo.
+                                    {platform?.has_betmomo_token
+                                        ? " Un token est déjà enregistré — laisser vide pour le conserver."
+                                        : ""}
+                                </p>
+                            </div>
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="betmomo_token">Token External (dat_...)</Label>
+                                    <Input
+                                        id="betmomo_token"
+                                        type="password"
+                                        autoComplete="new-password"
+                                        placeholder={
+                                            platform?.has_betmomo_token
+                                                ? "Laisser vide pour conserver le token actuel"
+                                                : "Coller le token dat_... fourni par BeWallet"
+                                        }
+                                        value={formData.betmomo_token || ""}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, betmomo_token: e.target.value })
+                                        }
+                                        disabled={isPending}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="betmomo_email">Email dealer (solde)</Label>
+                                    <Input
+                                        id="betmomo_email"
+                                        type="email"
+                                        autoComplete="off"
+                                        placeholder={
+                                            platform ? "Laisser vide pour conserver" : "Email compte dealer"
+                                        }
+                                        value={formData.betmomo_email || ""}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, betmomo_email: e.target.value })
+                                        }
+                                        disabled={isPending}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="betmomo_password">Mot de passe dealer (solde)</Label>
+                                    <Input
+                                        id="betmomo_password"
+                                        type="password"
+                                        autoComplete="new-password"
+                                        placeholder={
+                                            platform ? "Laisser vide pour conserver" : "Mot de passe dealer"
+                                        }
+                                        value={formData.betmomo_password || ""}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, betmomo_password: e.target.value })
+                                        }
+                                        disabled={isPending}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="space-y-2">

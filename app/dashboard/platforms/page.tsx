@@ -142,6 +142,7 @@ export default function PlatformsPage() {
                   <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50 border-b border-border/50">
                       <TableHead className="font-semibold text-muted-foreground h-12">Nom</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground">BetMomo</TableHead>
                       <TableHead className="font-semibold text-muted-foreground">Statut</TableHead>
                       <TableHead className="font-semibold text-muted-foreground">Actif Dépôt</TableHead>
                       <TableHead className="font-semibold text-muted-foreground">Actif Retrait</TableHead>
@@ -157,6 +158,11 @@ export default function PlatformsPage() {
                     {platforms.map((platform, index) => (
                       <TableRow key={platform.id} className={index % 2 === 0 ? "bg-card" : "bg-muted/20"}>
                         <TableCell className="font-semibold text-foreground">{platform.name}</TableCell>
+                        <TableCell>
+                          <Badge variant={platform.uses_betmomo ? "default" : "secondary"} className="font-medium">
+                            {platform.uses_betmomo ? "Actif" : platform.has_betmomo_token ? "Token OK" : "—"}
+                          </Badge>
+                        </TableCell>
                         <TableCell>
                           <Badge variant={platform.enable ? "default" : "secondary"} className="font-medium">
                             {platform.enable ? "Actif" : "Inactif"}

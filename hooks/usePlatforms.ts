@@ -26,6 +26,12 @@ export interface Platform {
     hash?: string | null
     cashdeskid?: string | null
     cashierpass?: string | null
+    /** Write-only — envoyer pour sauvegarder, jamais renvoyé en clair */
+    betmomo_token?: string | null
+    betmomo_email?: string | null
+    betmomo_password?: string | null
+    uses_betmomo?: boolean
+    has_betmomo_token?: boolean
 }
 
 export interface PlatformFilters {
@@ -34,7 +40,19 @@ export interface PlatformFilters {
 }
 
 
-export type PlatformInput = Omit<Platform, "id">
+export type PlatformInput = Omit<Platform, "id" | "uses_betmomo" | "has_betmomo_token">
+
+function stripEmptySecrets(data: Partial<PlatformInput>) {
+    const payload: any = { ...data }
+    if (!data.hash || data.hash.trim() === '') delete payload.hash
+    if (!data.cashdeskid || data.cashdeskid.trim() === '') delete payload.cashdeskid
+    if (!data.cashierpass || data.cashierpass.trim() === '') delete payload.cashierpass
+    // Secrets BetMomo : vide = ne pas écraser la valeur actuelle
+    if (!data.betmomo_token || data.betmomo_token.trim() === '') delete payload.betmomo_token
+    if (!data.betmomo_email || data.betmomo_email.trim() === '') delete payload.betmomo_email
+    if (!data.betmomo_password || data.betmomo_password.trim() === '') delete payload.betmomo_password
+    return payload
+}
 
 export function usePlatforms(filters: PlatformFilters) {
     return useQuery({
@@ -60,11 +78,7 @@ export function useCreatePlatform() {
                 const uploadedFile = (await api.post<AppFile>('/mobcash/upload', uploadData)).data
                 data.image = uploadedFile.file
             }
-            // Only include optional fields if they have values
-            const payload: any = { ...data }
-            if (!data.hash || data.hash.trim() === '') delete payload.hash
-            if (!data.cashdeskid || data.cashdeskid.trim() === '') delete payload.cashdeskid
-            if (!data.cashierpass || data.cashierpass.trim() === '') delete payload.cashierpass
+            const payload = stripEmptySecrets(data)
 
             const res = await api.post<Platform>("/mobcash/plateform", payload)
             return res.data
@@ -81,11 +95,7 @@ export function useUpdatePlatform() {
 
     return useMutation({
         mutationFn: async ({ id, data }: { id: string; data: Partial<PlatformInput> }) => {
-            // Only include optional fields if they have values
-            const payload: any = { ...data }
-            if (data.hash !== undefined && (!data.hash || data.hash.trim() === '')) delete payload.hash
-            if (data.cashdeskid !== undefined && (!data.cashdeskid || data.cashdeskid.trim() === '')) delete payload.cashdeskid
-            if (data.cashierpass !== undefined && (!data.cashierpass || data.cashierpass.trim() === '')) delete payload.cashierpass
+            const payload = stripEmptySecrets(data)
 
             const res = await api.put<Platform>(`/mobcash/plateform/${id}`, payload)
             return res.data
