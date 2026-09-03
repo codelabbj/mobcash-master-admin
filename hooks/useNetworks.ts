@@ -35,6 +35,8 @@ export interface Network {
     fee_slice_low_percent: string
     fee_slice_high_percent: string
     fee_slice_fixed: number
+    wave_business: boolean
+    wave_personnel_numero: string | null
 }
 
 export type NetworkInput = Omit<Network, "id" | "created_at">

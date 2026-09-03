@@ -99,6 +99,8 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
         fee_slice_low_percent: "2.00",
         fee_slice_high_percent: "1.00",
         fee_slice_fixed: 0,
+        wave_business: true,
+        wave_personnel_numero: null,
     })
 
     useEffect(() => {
@@ -131,6 +133,8 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                 fee_slice_low_percent: network.fee_slice_low_percent ?? "2.00",
                 fee_slice_high_percent: network.fee_slice_high_percent ?? "1.00",
                 fee_slice_fixed: network.fee_slice_fixed ?? 0,
+                wave_business: network.wave_business ?? true,
+                wave_personnel_numero: network.wave_personnel_numero ?? null,
             })
             setSelectedImage(network.image)
             setSelectedScreenshot(network.screenshot_example || null)
@@ -163,6 +167,8 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                 fee_slice_low_percent: "2.00",
                 fee_slice_high_percent: "1.00",
                 fee_slice_fixed: 0,
+                wave_business: true,
+                wave_personnel_numero: null,
             })
             setSelectedImage(null)
             setSelectedScreenshot(null)
@@ -237,6 +243,8 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                     fee_slice_low_percent: network.fee_slice_low_percent ?? "2.00",
                     fee_slice_high_percent: network.fee_slice_high_percent ?? "1.00",
                     fee_slice_fixed: network.fee_slice_fixed ?? 0,
+                    wave_business: network.wave_business ?? true,
+                    wave_personnel_numero: network.wave_personnel_numero ?? null,
                 })
                 setSelectedImage(network.image)
                 setSelectedScreenshot(network.screenshot_example || null)
@@ -269,6 +277,8 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                     fee_slice_low_percent: "2.00",
                     fee_slice_high_percent: "1.00",
                     fee_slice_fixed: 0,
+                    wave_business: true,
+                    wave_personnel_numero: null,
                 })
                 setSelectedImage(null)
                 setSelectedScreenshot(null)
@@ -302,6 +312,16 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
             delete (dataToSubmit as any).fee_slice_low_percent
             delete (dataToSubmit as any).fee_slice_high_percent
             delete (dataToSubmit as any).fee_slice_fixed
+        }
+
+        if (dataToSubmit.name !== "wave") {
+            dataToSubmit.wave_business = true
+            dataToSubmit.wave_personnel_numero = null
+        } else if (dataToSubmit.wave_business) {
+            dataToSubmit.wave_personnel_numero = null
+        } else if (!dataToSubmit.wave_personnel_numero?.trim()) {
+            toast.error("Le numéro Wave personnel est requis quand Wave Business est désactivé")
+            return
         }
 
         if (network) {
@@ -623,6 +643,50 @@ export function NetworkDialog({ open, onOpenChange, network }: NetworkDialogProp
                             />
                         </div>
                     </div>
+
+                    {formData.name === "wave" && (
+                        <div className="p-4 border border-dashed rounded-lg space-y-4 bg-muted/40">
+                            <p className="text-sm font-semibold">Configuration Wave</p>
+                            <div className="flex items-center justify-between space-x-2">
+                                <div className="space-y-1">
+                                    <Label htmlFor="wave_business">Wave Business</Label>
+                                    <p className="text-[10px] text-muted-foreground">
+                                        Activé: lien Connect Business. Désactivé: numéro marchand manuel.
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="wave_business"
+                                    checked={formData.wave_business}
+                                    onCheckedChange={(checked) =>
+                                        setFormData({
+                                            ...formData,
+                                            wave_business: checked,
+                                            wave_personnel_numero: checked ? null : formData.wave_personnel_numero,
+                                        })
+                                    }
+                                    disabled={isPending}
+                                />
+                            </div>
+                            {!formData.wave_business && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="wave_personnel_numero">Wave personnel numéro *</Label>
+                                    <Input
+                                        id="wave_personnel_numero"
+                                        value={formData.wave_personnel_numero || ""}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                wave_personnel_numero: e.target.value || null,
+                                            })
+                                        }
+                                        placeholder="Ex: 0566643821"
+                                        disabled={isPending}
+                                        required
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {formData.fee_slice_enabled && (
                         <div className="p-4 border border-primary/30 border-dashed rounded-lg space-y-4 bg-primary/5">
