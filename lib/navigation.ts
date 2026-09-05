@@ -18,6 +18,7 @@ import {
     HandCoins,
     Bitcoin,
     Coins,
+    Ban,
 } from "lucide-react"
 
 import { CONFIG } from "./config"
@@ -35,6 +36,7 @@ export const navItems: NavItem[] = [
     { href: "/dashboard", label: "Tableau de Bord", icon: LayoutDashboard, feature: null },
     { href: "/dashboard/users", label: "Utilisateurs", icon: Users, feature: "USERS" },
     { href: "/dashboard/user-credits", label: "Crediter fraud", icon: HandCoins, feature: null },
+    { href: "/dashboard/cancellation-debt-blacklist", label: "Liste noire", icon: Ban, feature: "CANCELLATION_DEBT_BLACKLIST" },
     { href: "/dashboard/bot-users", label: "Utilisateurs Bot", icon: Users, feature: "BOT_USERS" },
     { href: "/dashboard/networks", label: "Réseaux", icon: Network, feature: "NETWORKS" },
     { href: "/dashboard/telephones", label: "Téléphones", icon: Phone, feature: "TELEPHONES" },
