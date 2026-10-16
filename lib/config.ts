@@ -46,5 +46,7 @@ export const CONFIG = {
     CRYPTO_TRANSACTIONS: process.env.NEXT_PUBLIC_ENABLE_CRYPTO_TRANSACTIONS !== "false",
     CANCELLATION_DEBT_BLACKLIST:
       process.env.NEXT_PUBLIC_ENABLE_CANCELLATION_DEBT_BLACKLIST !== "false",
+    // Défaut false : activer avec NEXT_PUBLIC_ENABLE_MY_SOLDE=true
+    MY_SOLDE: process.env.NEXT_PUBLIC_ENABLE_MY_SOLDE === "true",
   },
 };
