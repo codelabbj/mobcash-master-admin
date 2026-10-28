@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import TablePagination from "@/components/table-pagination"
-import { CheckCircle2, Clock, Loader2, Search, Target, TrendingUp, XCircle } from "lucide-react"
+import { Check, CheckCircle2, Clock, Loader2, Search, Target, TrendingUp, X, XCircle } from "lucide-react"
 
 type Period = "today" | "week" | "month" | "all"
 
@@ -194,7 +194,11 @@ export default function PredictionsPage() {
           </div>
         </TableCell>
         <TableCell>
-          <Badge className={meta.className}>{meta.label}</Badge>
+          <Badge className={meta.className}>
+            {row.outcome === "won" && <Check className="h-3 w-3" />}
+            {row.outcome === "lost" && <X className="h-3 w-3" />}
+            {meta.label}
+          </Badge>
         </TableCell>
         <TableCell>
           <Badge variant={row.is_published ? "default" : "outline"}>
@@ -377,7 +381,7 @@ export default function PredictionsPage() {
                     <TableHead>Coup d&apos;envoi</TableHead>
                     <TableHead>Pari conseillé</TableHead>
                     <TableHead>Score / Statut</TableHead>
-                    <TableHead>Résultat</TableHead>
+                    <TableHead>Validation</TableHead>
                     <TableHead>Visibilité</TableHead>
                   </TableRow>
                 </TableHeader>
