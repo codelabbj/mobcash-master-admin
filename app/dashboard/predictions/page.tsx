@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import {
+  useDeletePrediction,
   usePredictions,
   type PredictionAdminRow,
   type PredictionOutcome,
@@ -28,7 +29,30 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import TablePagination from "@/components/table-pagination"
-import { Check, CheckCircle2, Clock, Loader2, Search, Target, TrendingUp, X, XCircle } from "lucide-react"
+import { PredictionDialog } from "@/components/prediction-dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
+  Check,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  Pencil,
+  Search,
+  Target,
+  Trash2,
+  TrendingUp,
+  X,
+  XCircle,
+} from "lucide-react"
 
 type Period = "today" | "week" | "month" | "all"
 
@@ -133,6 +157,32 @@ export default function PredictionsPage() {
   )
 
   const { data, isLoading, isFetching } = usePredictions(filters)
+  const deletePrediction = useDeletePrediction()
+
+  const [editingPrediction, setEditingPrediction] = useState<PredictionAdminRow | null>(null)
+  const [editOpen, setEditOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<PredictionAdminRow | null>(null)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+
+  const openEdit = (row: PredictionAdminRow) => {
+    setEditingPrediction(row)
+    setEditOpen(true)
+  }
+
+  const openDelete = (row: PredictionAdminRow) => {
+    setDeleteTarget(row)
+    setDeleteOpen(true)
+  }
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return
+    deletePrediction.mutate(deleteTarget.id, {
+      onSuccess: () => {
+        setDeleteOpen(false)
+        setDeleteTarget(null)
+      },
+    })
+  }
 
   const applySearch = () => {
     setPage(1)
@@ -203,6 +253,26 @@ export default function PredictionsPage() {
           <Badge variant={row.is_published ? "default" : "outline"}>
             {row.is_published ? "Publié" : "Brouillon"}
           </Badge>
+        </TableCell>
+        <TableCell className="text-right">
+          <div className="flex justify-end gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Modifier"
+              onClick={() => openEdit(row)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Supprimer"
+              onClick={() => openDelete(row)}
+            >
+              <Trash2 className="h-4 w-4 text-rose-500" />
+            </Button>
+          </div>
         </TableCell>
       </TableRow>
     )
@@ -387,6 +457,7 @@ export default function PredictionsPage() {
                     <TableHead>Score / Statut</TableHead>
                     <TableHead>Validation</TableHead>
                     <TableHead>Visibilité</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>{data.results.map(renderRow)}</TableBody>
@@ -403,6 +474,43 @@ export default function PredictionsPage() {
           )}
         </CardContent>
       </Card>
+
+      <PredictionDialog
+        open={editOpen}
+        onOpenChange={(open) => {
+          setEditOpen(open)
+          if (!open) setEditingPrediction(null)
+        }}
+        prediction={editingPrediction}
+      />
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce pronostic ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget
+                ? `${deleteTarget.home.name} vs ${deleteTarget.away.name} (${formatDate(
+                    deleteTarget.prediction_date
+                  )})`
+                : ""}
+              <br />
+              Il ne sera plus visible par les utilisateurs. Cette action est définitive.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deletePrediction.isPending}
+              className="bg-rose-600 text-white hover:bg-rose-700"
+            >
+              {deletePrediction.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

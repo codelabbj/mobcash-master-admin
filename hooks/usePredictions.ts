@@ -1,7 +1,8 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import api from "@/lib/axios"
+import { toast } from "react-hot-toast"
 
 export type PredictionOutcome = "pending" | "won" | "lost" | "void"
 
@@ -86,6 +87,54 @@ export function usePredictions(params: PredictionsParams) {
     queryFn: async () => {
       const res = await api.get<PredictionsResponse>("/mobcash/predictions", { params })
       return res.data
+    },
+  })
+}
+
+export interface PredictionUpdateInput {
+  best_market?: string
+  best_market_label?: string
+  best_market_prob?: number
+  confidence_level?: "low" | "medium" | "high"
+  outcome?: PredictionOutcome
+  is_published?: boolean
+  p_home?: number
+  p_draw?: number
+  p_away?: number
+  prediction_date?: string
+}
+
+export function useUpdatePrediction() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: PredictionUpdateInput }) => {
+      const res = await api.patch<PredictionAdminRow>(`/mobcash/predictions/${id}`, data)
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["predictions"] })
+      toast.success("Pronostic mis à jour")
+    },
+    onError: () => {
+      toast.error("Impossible de modifier le pronostic")
+    },
+  })
+}
+
+export function useDeletePrediction() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/mobcash/predictions/${id}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["predictions"] })
+      toast.success("Pronostic supprimé")
+    },
+    onError: () => {
+      toast.error("Impossible de supprimer le pronostic")
     },
   })
 }
