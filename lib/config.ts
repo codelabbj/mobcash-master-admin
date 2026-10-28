@@ -48,5 +48,7 @@ export const CONFIG = {
       process.env.NEXT_PUBLIC_ENABLE_CANCELLATION_DEBT_BLACKLIST !== "false",
     // Défaut false : activer avec NEXT_PUBLIC_ENABLE_MY_SOLDE=true
     MY_SOLDE: process.env.NEXT_PUBLIC_ENABLE_MY_SOLDE === "true",
+    // Défaut false : activer avec NEXT_PUBLIC_ENABLE_PREDICTIONS=true
+    PREDICTIONS: process.env.NEXT_PUBLIC_ENABLE_PREDICTIONS === "true",
   },
 };
