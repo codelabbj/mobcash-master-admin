@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import {
   Select,
   SelectContent,
@@ -352,7 +351,12 @@ export default function PredictionsPage() {
                 ? `${summary.win_rate}%`
                 : "—"}
             </div>
-            <Progress className="mt-2" value={summary?.win_rate ?? 0} />
+            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-primary/20">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${summary?.win_rate ?? 0}%` }}
+              />
+            </div>
           </CardContent>
         </Card>
       </div>
