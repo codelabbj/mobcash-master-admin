@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
   usePredictions,
   type PredictionAdminRow,
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 import {
   Select,
   SelectContent,
@@ -30,11 +31,49 @@ import {
 import TablePagination from "@/components/table-pagination"
 import { CheckCircle2, Clock, Loader2, Search, Target, TrendingUp, XCircle } from "lucide-react"
 
+type Period = "today" | "week" | "month" | "all"
+
+const PERIODS: { value: Period; label: string }[] = [
+  { value: "today", label: "Aujourd'hui" },
+  { value: "week", label: "Cette semaine" },
+  { value: "month", label: "30 derniers jours" },
+  { value: "all", label: "Tout" },
+]
+
+function toIso(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${date.getFullYear()}-${month}-${day}`
+}
+
 function todayIso(): string {
-  const now = new Date()
-  const month = String(now.getMonth() + 1).padStart(2, "0")
-  const day = String(now.getDate()).padStart(2, "0")
-  return `${now.getFullYear()}-${month}-${day}`
+  return toIso(new Date())
+}
+
+function startOfWeekIso(): string {
+  const date = new Date()
+  const mondayOffset = (date.getDay() + 6) % 7
+  date.setDate(date.getDate() - mondayOffset)
+  return toIso(date)
+}
+
+function daysAgoIso(days: number): string {
+  const date = new Date()
+  date.setDate(date.getDate() - days)
+  return toIso(date)
+}
+
+function periodToDateParams(period: Period): Pick<PredictionsParams, "date" | "from" | "to"> {
+  switch (period) {
+    case "today":
+      return { date: todayIso() }
+    case "week":
+      return { from: startOfWeekIso(), to: todayIso() }
+    case "month":
+      return { from: daysAgoIso(29), to: todayIso() }
+    default:
+      return {}
+  }
 }
 
 function formatDateTime(value: string): string {
@@ -54,10 +93,7 @@ function formatDate(value: string): string {
   })
 }
 
-const OUTCOME_META: Record<
-  PredictionOutcome,
-  { label: string; className: string }
-> = {
+const OUTCOME_META: Record<PredictionOutcome, { label: string; className: string }> = {
   won: { label: "Gagné", className: "bg-emerald-500 text-white" },
   lost: { label: "Perdu", className: "bg-rose-500 text-white" },
   pending: { label: "En attente", className: "bg-gray-400 text-white" },
@@ -79,38 +115,50 @@ const FIXTURE_STATUS_LABEL: Record<string, string> = {
 }
 
 export default function PredictionsPage() {
-  const [date, setDate] = useState(todayIso())
+  const [period, setPeriod] = useState<Period>("week")
   const [outcome, setOutcome] = useState("all")
   const [searchInput, setSearchInput] = useState("")
-  const [filters, setFilters] = useState<PredictionsParams>({
-    date: todayIso(),
-    page: 1,
-    page_size: 20,
-  })
+  const [page, setPage] = useState(1)
+  const [pageSize] = useState(20)
+  const [search, setSearch] = useState("")
+
+  const filters = useMemo<PredictionsParams>(
+    () => ({
+      ...periodToDateParams(period),
+      outcome: outcome === "all" ? undefined : (outcome as PredictionOutcome),
+      search: search || undefined,
+      page,
+      page_size: pageSize,
+    }),
+    [period, outcome, search, page, pageSize]
+  )
 
   const { data, isLoading, isFetching } = usePredictions(filters)
 
-  const applyFilters = () => {
-    setFilters({
-      date: date || undefined,
-      outcome: outcome === "all" ? undefined : (outcome as PredictionOutcome),
-      search: searchInput.trim() || undefined,
-      page: 1,
-      page_size: 20,
-    })
+  const applySearch = () => {
+    setPage(1)
+    setSearch(searchInput.trim())
+  }
+
+  const changePeriod = (value: Period) => {
+    setPeriod(value)
+    setPage(1)
+  }
+
+  const changeOutcome = (value: string) => {
+    setOutcome(value)
+    setPage(1)
   }
 
   const resetFilters = () => {
-    const today = todayIso()
-    setDate(today)
+    setPeriod("week")
     setOutcome("all")
     setSearchInput("")
-    setFilters({ date: today, page: 1, page_size: 20 })
+    setSearch("")
+    setPage(1)
   }
 
   const summary = data?.summary
-  const page = filters.page ?? 1
-  const pageSize = filters.page_size ?? 20
 
   const renderRow = (row: PredictionAdminRow) => {
     const meta = OUTCOME_META[row.outcome] ?? OUTCOME_META.pending
@@ -130,9 +178,7 @@ export default function PredictionsPage() {
           </div>
           <div className="text-xs text-muted-foreground">{row.competition.name}</div>
         </TableCell>
-        <TableCell className="whitespace-nowrap text-sm">
-          {formatDateTime(row.kickoff_at)}
-        </TableCell>
+        <TableCell className="whitespace-nowrap text-sm">{formatDateTime(row.kickoff_at)}</TableCell>
         <TableCell>
           <div className="font-medium">{row.best_market_label}</div>
           <div className="text-xs text-muted-foreground">
@@ -167,7 +213,7 @@ export default function PredictionsPage() {
             Pronostics
           </h2>
           <p className="text-muted-foreground">
-            Consultation des pronostics générés automatiquement (API-Football + moteur).
+            Historique des pronostics générés automatiquement, avec résultats et taux de réussite.
           </p>
         </div>
         {isFetching && !isLoading && (
@@ -180,26 +226,30 @@ export default function PredictionsPage() {
 
       <Card className="border border-border/50 shadow-sm">
         <CardHeader className="border-b border-border/50 bg-muted/30">
-          <CardTitle className="text-lg font-semibold">Filtres</CardTitle>
+          <CardTitle className="text-lg font-semibold">Période et filtres</CardTitle>
           <CardDescription className="text-sm">
-            Date vide = toutes les dates. Les pronostics restent visibles ici même si le
-            module est verrouillé côté application.
+            Tous les pronostics déjà générés sont consultables, y compris ceux verrouillés côté
+            application.
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className="space-y-4 pt-6">
+          <div className="flex flex-wrap gap-2">
+            {PERIODS.map((item) => (
+              <Button
+                key={item.value}
+                variant={period === item.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => changePeriod(item.value)}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
-              <Label htmlFor="date">Date du prono</Label>
-              <Input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="outcome">Résultat</Label>
-              <Select value={outcome} onValueChange={setOutcome}>
+              <Select value={outcome} onValueChange={changeOutcome}>
                 <SelectTrigger id="outcome">
                   <SelectValue />
                 </SelectTrigger>
@@ -212,7 +262,7 @@ export default function PredictionsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="search">Recherche</Label>
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -221,13 +271,13 @@ export default function PredictionsPage() {
                   placeholder="Équipe, championnat, pari…"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && applyFilters()}
+                  onKeyDown={(e) => e.key === "Enter" && applySearch()}
                   className="pl-8"
                 />
               </div>
             </div>
             <div className="flex items-end gap-2">
-              <Button onClick={applyFilters} className="flex-1">
+              <Button onClick={applySearch} className="flex-1">
                 Filtrer
               </Button>
               <Button variant="outline" onClick={resetFilters}>
@@ -238,7 +288,7 @@ export default function PredictionsPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Card className="border border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -274,6 +324,20 @@ export default function PredictionsPage() {
         <Card className="border border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
+              En attente
+            </CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{summary?.pending ?? 0}</div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {summary?.void ?? 0} annulé(s)
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border border-border/50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Taux de réussite
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -284,10 +348,7 @@ export default function PredictionsPage() {
                 ? `${summary.win_rate}%`
                 : "—"}
             </div>
-            <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              {summary?.pending ?? 0} en attente
-            </p>
+            <Progress className="mt-2" value={summary?.win_rate ?? 0} />
           </CardContent>
         </Card>
       </div>
@@ -295,9 +356,7 @@ export default function PredictionsPage() {
       <Card className="border border-border/50 shadow-sm">
         <CardHeader className="border-b border-border/50 bg-muted/30">
           <CardTitle className="text-lg font-semibold">Liste des pronostics</CardTitle>
-          <CardDescription className="mt-1 text-sm">
-            Total : {data?.count ?? 0}
-          </CardDescription>
+          <CardDescription className="mt-1 text-sm">Total : {data?.count ?? 0}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
@@ -330,9 +389,7 @@ export default function PredictionsPage() {
                 total={data.count}
                 disablePreviousPage={!data.previous}
                 disableNextPage={!data.next}
-                onChangePage={(nextPage) =>
-                  setFilters((prev) => ({ ...prev, page: nextPage }))
-                }
+                onChangePage={setPage}
               />
             </>
           )}
