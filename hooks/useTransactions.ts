@@ -253,3 +253,26 @@ export function useFinalizeTransaction() {
     },
   })
 }
+
+export interface RetryWithdrawalInput {
+  reference: string
+}
+
+export function useRetryWithdrawal() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: RetryWithdrawalInput) => {
+      const res = await api.post<Transaction>("/mobcash/retry-withdrawal", data)
+      return res.data
+    },
+    onSuccess: () => {
+      toast.success("Retrait relancé avec succès !")
+      queryClient.invalidateQueries({ queryKey: ["transactions"] })
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.error || "Erreur lors de la relance du retrait."
+      toast.error(message)
+    },
+  })
+}

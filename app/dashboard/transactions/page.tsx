@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Plus, Search, RefreshCw, AlertCircle, MoreVertical, CheckCircle2, Gift } from "lucide-react"
+import { Loader2, Plus, Search, RefreshCw, AlertCircle, MoreVertical, CheckCircle2, Gift, RotateCcw } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +26,7 @@ import { UpdateTransactionStatusDialog } from "@/components/update-transaction-s
 import { TransactionDetailsDialog } from "@/components/transaction-details-dialog"
 import { CopyButton } from "@/components/copy-button"
 import { FinalizeTransactionDialog } from "@/components/transactions/finalize-transaction-dialog"
+import { RetryWithdrawalDialog } from "@/components/transactions/retry-withdrawal-dialog"
 import { RewardUserDialog } from "@/components/bonuses/reward-user-modal"
 
 export default function TransactionsPage() {
@@ -86,6 +87,7 @@ export default function TransactionsPage() {
   const [updateStatusDialogOpen, setUpdateStatusDialogOpen] = useState(false)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false)
+  const [retryWithdrawalDialogOpen, setRetryWithdrawalDialogOpen] = useState(false)
   const [rewardDialogOpen, setRewardDialogOpen] = useState(false)
 
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
@@ -118,6 +120,11 @@ export default function TransactionsPage() {
   const handleFinalizeTransaction = (transaction: Transaction) => {
     setSelectedTransaction(transaction)
     setFinalizeDialogOpen(true)
+  }
+
+  const handleRetryWithdrawal = (transaction: Transaction) => {
+    setSelectedTransaction(transaction)
+    setRetryWithdrawalDialogOpen(true)
   }
 
   const handleRewardUser = (transaction: Transaction) => {
@@ -483,6 +490,15 @@ export default function TransactionsPage() {
                                     Traiter
                                   </DropdownMenuItem>
                                 ) : null}
+                                {transaction.type_trans === "withdrawal" && transaction.status !== "accept" && transaction.status !== "annuler" ? (
+                                  <DropdownMenuItem
+                                    onClick={() => handleRetryWithdrawal(transaction)}
+                                    className="text-orange-600 font-medium"
+                                  >
+                                    <RotateCcw className="mr-2 h-4 w-4" />
+                                    Relancer le retrait
+                                  </DropdownMenuItem>
+                                ) : null}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => handleRewardUser(transaction)} className="text-amber-600 font-medium">
                                   <Gift className="mr-2 h-4 w-4" />
@@ -565,6 +581,11 @@ export default function TransactionsPage() {
       <FinalizeTransactionDialog
         open={finalizeDialogOpen}
         onOpenChange={setFinalizeDialogOpen}
+        transaction={selectedTransaction}
+      />
+      <RetryWithdrawalDialog
+        open={retryWithdrawalDialogOpen}
+        onOpenChange={setRetryWithdrawalDialogOpen}
         transaction={selectedTransaction}
       />
       <RewardUserDialog
