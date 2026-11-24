@@ -263,11 +263,11 @@ export function useRetryWithdrawal() {
 
   return useMutation({
     mutationFn: async (data: RetryWithdrawalInput) => {
-      const res = await api.post<Transaction>("/mobcash/retry-withdrawal", data)
+      const res = await api.post<Transaction & { retry_message?: string }>("/mobcash/retry-withdrawal", data)
       return res.data
     },
-    onSuccess: () => {
-      toast.success("Retrait relancé avec succès !")
+    onSuccess: (data) => {
+      toast.success(data?.retry_message || "Retrait relancé avec succès !")
       queryClient.invalidateQueries({ queryKey: ["transactions"] })
     },
     onError: (error: any) => {
